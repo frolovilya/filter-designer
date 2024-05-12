@@ -1,16 +1,30 @@
-#include "RCGrid.h"
+#include "RCGrid.hpp"
 #include <cmath>
 #include <stdexcept>
 
-RCGrid::RCGrid(int cutoffFrequencyHz)
+using namespace std;
+
+RCGrid::RCGrid(const int cutoffFrequencyHz, const int samplingRateHz)
     : cutoffFrequencyHz{cutoffFrequencyHz},
-      rcConstant{calculateRCConstant(cutoffFrequencyHz)} {}
+      coefficients{
+          calculateIIRFilterCoefficients(cutoffFrequencyHz, samplingRateHz)} {
+  if (cutoffFrequencyHz < 1) {
+    throw invalid_argument("RCGrid: cutoffFrequencyHz must be >= 1");
+  }
+  if (samplingRateHz < 1) {
+    throw invalid_argument("RCGrid: samplingRateHz must be >= 1");
+  }
+}
 
-int RCGrid::getCutoffFrequency() { return cutoffFrequencyHz; }
+int RCGrid::getCutoffFrequency() const { return cutoffFrequencyHz; }
 
-constexpr double RCGrid::calculateRCConstant(const double frequencyHz) {
+IIRFilterCoefficients RCGrid::getIIRFilterCoefficients() const {
+  return coefficients;
+}
+
+double RCGrid::calculateRCConstant(const int frequencyHz) {
   if (frequencyHz < 1) {
-    throw std::invalid_argument("frequencyHz must be > 0");
+    throw invalid_argument("calculateRCConstant: frequencyHz must be >= 1");
   }
   /*
   R = 1 / (2 * pi * frequencyHz * C)
@@ -19,14 +33,20 @@ constexpr double RCGrid::calculateRCConstant(const double frequencyHz) {
   return 1 / (2 * M_PI * frequencyHz);
 }
 
-IIRCoefficients RCGrid::calculateIIRFilterCoefficients(int samplingRateHz) {
+IIRFilterCoefficients
+RCGrid::calculateIIRFilterCoefficients(const int cutoffFrequencyHz,
+                                       const int samplingRateHz) {
+  if (cutoffFrequencyHz < 1) {
+    throw invalid_argument(
+        "calculateIIRFilterCoefficients: cutoffFrequencyHz must be >= 1");
+  }
   if (samplingRateHz < 1) {
-    throw std::invalid_argument("samplingRateHz must be > 0");
+    throw invalid_argument(
+        "calculateIIRFilterCoefficients: samplingRateHz must be >= 1");
   }
   /*
   Resistance:
   i = (V1 - V2) / R
-
   Capacitance:
   i = C * d(V1 - V2) / dt
 
@@ -43,14 +63,16 @@ IIRCoefficients RCGrid::calculateIIRFilterCoefficients(int samplingRateHz) {
   Vout[n] (T + RC) = T * Vin[n] + RC * Vout[n-1]
   Vout[n] = T / (T + RC) * Vin[n] + RC / (T + RC) * Vout[n-1]
 
-  Given A and B are IIR filter coefficients:
-  Vout[n] = A * Vin[n] + B * Vout[n-1]
+  Then A and B are IIR filter coefficients:
+  A = T / (T + RC)
+  B = RC / (T + RC)
   */
 
   double samplingTime{1 / (double)samplingRateHz};
+  double rcConstant{calculateRCConstant(cutoffFrequencyHz)};
 
-  IIRCoefficients coefficients(samplingTime / (samplingTime + rcConstant),
-                               rcConstant / (samplingTime + rcConstant));
+  IIRFilterCoefficients coefficients(samplingTime / (samplingTime + rcConstant),
+                                     rcConstant / (samplingTime + rcConstant));
 
   return coefficients;
 }
