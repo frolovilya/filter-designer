@@ -8,10 +8,11 @@
 class IIRFilter {
 public:
   IIRFilter(const RCGrid &rcGrid);
+  int getSamplingRate() const;
   std::vector<double> apply(const std::vector<double> &samples);
 
 private:
-  const RCGrid& rcGrid;
+  const RCGrid &rcGrid;
   double vOutFeedback;
 
   double apply(double vIn);

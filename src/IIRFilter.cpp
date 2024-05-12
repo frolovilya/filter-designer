@@ -4,6 +4,8 @@ using namespace std;
 
 IIRFilter::IIRFilter(const RCGrid &rcGrid) : rcGrid{rcGrid}, vOutFeedback{0} {}
 
+int IIRFilter::getSamplingRate() const { return rcGrid.getSamplingRate(); }
+
 double IIRFilter::apply(double vIn) {
   /*
   Given A and B are IIR filter coefficients:

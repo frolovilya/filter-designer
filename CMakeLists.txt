@@ -8,4 +8,10 @@ add_compile_options(-Wall -Wextra -pedantic -Werror)
 
 project(filter-designer)
 
-add_executable(${CMAKE_PROJECT_NAME} src/main.cpp src/RCGrid.cpp src/IIRFilter.cpp src/SineWave.cpp)
+add_executable(${CMAKE_PROJECT_NAME} 
+    src/main.cpp 
+    src/RCGrid.cpp 
+    src/IIRFilter.cpp 
+    src/SineWave.cpp
+    src/FrequencyResponse.cpp
+)

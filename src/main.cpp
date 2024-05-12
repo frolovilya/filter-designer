@@ -1,6 +1,6 @@
+#include "FrequencyResponse.hpp"
 #include "IIRFilter.hpp"
 #include "RCGrid.hpp"
-#include "SineWave.hpp"
 #include <iostream>
 #include <unordered_map>
 
@@ -42,17 +42,6 @@ int parseSamplingRate(const unordered_map<string, string> &arguments) {
   return parseIntParameter("samplingRate", 1, arguments);
 }
 
-double findMaxValue(const vector<double> &samples) {
-  double max = 0;
-  for (const double &sample : samples) {
-    if (sample > max) {
-      max = sample;
-    }
-  }
-
-  return max;
-}
-
 int main(int argc, char *argv[]) {
   const auto arguments{argumentsToMap(argc, argv)};
 
@@ -75,12 +64,10 @@ int main(int argc, char *argv[]) {
     cout << "IIR Coefficients A=" << coefficients.a << "; B=" << coefficients.b
          << "\n";
 
-    auto sine = SineWave(samplingRateHz);
-    for (int frequency = 1; frequency < 1000; frequency++) {
-      auto samples = sine.generatePeriod(frequency, 1);
-      auto filteredSamples = iirFilter.apply(samples);
-
-      cout << findMaxValue(filteredSamples) << " ";
+    auto frequencyResponse = FrequencyResponse(iirFilter);
+    auto responseDb = frequencyResponse.calculateResponseDb(1, 1000);
+    for (const double &value : responseDb) {
+      cout << value << " ";
     }
     cout << "\n";
 

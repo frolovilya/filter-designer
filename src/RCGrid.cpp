@@ -5,7 +5,7 @@
 using namespace std;
 
 RCGrid::RCGrid(const int cutoffFrequencyHz, const int samplingRateHz)
-    : cutoffFrequencyHz{cutoffFrequencyHz},
+    : cutoffFrequencyHz{cutoffFrequencyHz}, samplingRateHz{samplingRateHz},
       coefficients{
           calculateIIRFilterCoefficients(cutoffFrequencyHz, samplingRateHz)} {
   if (cutoffFrequencyHz < 1) {
@@ -17,6 +17,8 @@ RCGrid::RCGrid(const int cutoffFrequencyHz, const int samplingRateHz)
 }
 
 int RCGrid::getCutoffFrequency() const { return cutoffFrequencyHz; }
+
+int RCGrid::getSamplingRate() const { return samplingRateHz; }
 
 IIRFilterCoefficients RCGrid::getIIRFilterCoefficients() const {
   return coefficients;
