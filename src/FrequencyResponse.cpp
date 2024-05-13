@@ -1,10 +1,27 @@
-#include "FrequencyResponse.hpp"
-#include "SineWave.hpp"
+module;
 
 #include <cmath>
 #include <stdexcept>
+#include <vector>
+
+import SineWave;
+import IIRFilter;
 
 using namespace std;
+
+export module FrequencyResponse;
+
+export class FrequencyResponse {
+public:
+  FrequencyResponse(IIRFilter &filter);
+  std::vector<double> calculateResponseDb(int fromFrequencyHz,
+                                          int toFrequencyHz);
+
+private:
+  IIRFilter &filter;
+  double toDb(double value);
+  double findMaxValue(const std::vector<double> &samples);
+};
 
 FrequencyResponse::FrequencyResponse(IIRFilter &filter) : filter{filter} {}
 
@@ -27,7 +44,8 @@ vector<double> FrequencyResponse::calculateResponseDb(int fromFrequencyHz,
     throw invalid_argument("calculateResponseDb: fromFrequencyHz must be >= 1");
   }
   if (toFrequencyHz <= fromFrequencyHz) {
-    throw invalid_argument("calculateResponseDb: toFrequencyHz must be > fromFrequencyHz");
+    throw invalid_argument(
+        "calculateResponseDb: toFrequencyHz must be > fromFrequencyHz");
   }
 
   vector<double> result;

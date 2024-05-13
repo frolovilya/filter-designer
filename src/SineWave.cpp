@@ -1,8 +1,22 @@
-#include "SineWave.hpp"
+module;
+
 #include <cmath>
 #include <stdexcept>
+#include <vector>
 
 using namespace std;
+
+export module SineWave;
+
+export class SineWave {
+public:
+  SineWave(int samplingRateHz);
+  std::vector<double> generatePeriod(int frequency, double amplitude);
+
+private:
+  const int samplingRateHz;
+  int calculatePeriodSamplesCount(int frequency);
+};
 
 SineWave::SineWave(const int samplingRateHz) : samplingRateHz{samplingRateHz} {
   if (samplingRateHz < 1) {

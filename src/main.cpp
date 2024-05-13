@@ -1,8 +1,10 @@
-#include "FrequencyResponse.hpp"
-#include "IIRFilter.hpp"
-#include "RCGrid.hpp"
+#include "IIRFilterCoefficients.hpp"
 #include <iostream>
 #include <unordered_map>
+
+import FrequencyResponse;
+import IIRFilter;
+import RCGrid;
 
 using namespace std;
 

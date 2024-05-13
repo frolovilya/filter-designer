@@ -1,6 +1,26 @@
-#include "IIRFilter.hpp"
+module;
+
+#include "IIRFilterCoefficients.hpp"
+#include <vector>
+
+import RCGrid;
 
 using namespace std;
+
+export module IIRFilter;
+
+export class IIRFilter {
+public:
+  IIRFilter(const RCGrid &rcGrid);
+  int getSamplingRate() const;
+  std::vector<double> apply(const std::vector<double> &samples);
+
+private:
+  const RCGrid &rcGrid;
+  double vOutFeedback;
+
+  double apply(double vIn);
+};
 
 IIRFilter::IIRFilter(const RCGrid &rcGrid) : rcGrid{rcGrid}, vOutFeedback{0} {}
 
