@@ -2,16 +2,19 @@
 #define FREQUENCY_RESPONSE_H
 
 #include "IIRFilter.hpp"
+#include "FIRFilter.hpp"
 #include <vector>
 
 class FrequencyResponse {
 public:
-  FrequencyResponse(IIRFilter &filter);
+  FrequencyResponse(FIRFilter &filter);
+
   std::vector<double> calculateResponseDb(int fromFrequencyHz,
                                           int toFrequencyHz);
 
 private:
-  IIRFilter &filter;
+  FIRFilter &filter;
+
   double toDb(double value);
   double findMaxValue(const std::vector<double> &samples);
 };

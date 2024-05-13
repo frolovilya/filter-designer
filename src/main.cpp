@@ -1,3 +1,4 @@
+#include "FIRFilter.hpp"
 #include "FrequencyResponse.hpp"
 #include "IIRFilter.hpp"
 #include "RCGrid.hpp"
@@ -57,7 +58,7 @@ int main(int argc, char *argv[]) {
     const int samplingRateHz = parseSamplingRate(arguments);
     cout << "Sampling Rate " << samplingRateHz << "Hz\n";
 
-    auto rcGrid = RCGrid(cutoffFrequencyHz, samplingRateHz);
+    /*auto rcGrid = RCGrid(cutoffFrequencyHz, samplingRateHz);
     auto iirFilter = IIRFilter(rcGrid);
 
     IIRFilterCoefficients coefficients = rcGrid.getIIRFilterCoefficients();
@@ -65,6 +66,22 @@ int main(int argc, char *argv[]) {
          << "\n";
 
     auto frequencyResponse = FrequencyResponse(iirFilter);
+    auto responseDb = frequencyResponse.calculateResponseDb(1, 1000);
+    for (const double &value : responseDb) {
+      cout << value << " ";
+    }
+    cout << "\n";*/
+
+    FIRFilter firFilter =
+        FIRFilter(cutoffFrequencyHz, 200, RectangularWindow(), samplingRateHz);
+    auto result = firFilter.getFilterCoefficients();
+
+    for (const double &value : result) {
+      cout << value << " ";
+    }
+    cout << "\n";
+
+    auto frequencyResponse = FrequencyResponse(firFilter);
     auto responseDb = frequencyResponse.calculateResponseDb(1, 1000);
     for (const double &value : responseDb) {
       cout << value << " ";

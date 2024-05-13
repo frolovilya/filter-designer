@@ -6,9 +6,11 @@
 
 using namespace std;
 
-FrequencyResponse::FrequencyResponse(IIRFilter &filter) : filter{filter} {}
+FrequencyResponse::FrequencyResponse(FIRFilter &filter) : filter{filter} {}
 
-double FrequencyResponse::toDb(double value) { return 20 * log10(value); }
+double FrequencyResponse::toDb(double value) { 
+  return value == 0 ? 0 : 20 * log10(value); 
+}
 
 double FrequencyResponse::findMaxValue(const vector<double> &samples) {
   double max = 0;

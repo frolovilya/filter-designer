@@ -13,6 +13,7 @@
 class RCGrid {
 public:
   RCGrid(int cutoffFrequencyHz, int samplingRateHz);
+  
   int getCutoffFrequency() const;
   int getSamplingRate() const;
   IIRFilterCoefficients getIIRFilterCoefficients() const;

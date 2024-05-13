@@ -26,7 +26,7 @@ vector<double> SineWave::generatePeriod(const int frequency,
     throw invalid_argument("generatePeriod: frequency must be >= 1");
   }
   if (amplitude < 0) {
-    throw invalid_argument("amplitude: amplitude must be positive");
+    throw invalid_argument("generatePeriod: amplitude must be positive");
   }
 
   const int period = calculatePeriodSamplesCount(frequency);

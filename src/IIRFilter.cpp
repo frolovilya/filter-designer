@@ -4,7 +4,7 @@ using namespace std;
 
 IIRFilter::IIRFilter(const RCGrid &rcGrid) : rcGrid{rcGrid}, vOutFeedback{0} {}
 
-int IIRFilter::getSamplingRate() const { return rcGrid.getSamplingRate(); }
+const RCGrid &IIRFilter::getRCGrid() const { return rcGrid; }
 
 double IIRFilter::apply(double vIn) {
   /*
@@ -17,8 +17,6 @@ double IIRFilter::apply(double vIn) {
 }
 
 vector<double> IIRFilter::apply(const vector<double> &samples) {
-  vOutFeedback = 0;
-
   vector<double> result;
   for (const double &sample : samples) {
     result.push_back(apply(sample));
