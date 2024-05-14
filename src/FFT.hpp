@@ -1,0 +1,15 @@
+#ifndef FFT_H
+#define FFT_H
+
+#include <complex>
+#include <vector>
+
+std::vector<std::complex<double>> fft(const std::vector<double> &samples,
+                                      bool inverse = false);
+
+std::vector<std::complex<double>> fftDirect(const std::vector<double> &samples);
+
+std::vector<std::complex<double>>
+fftInverse(const std::vector<double> &samples);
+
+#endif

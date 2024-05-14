@@ -18,9 +18,11 @@ add_executable(${CMAKE_PROJECT_NAME}
     src/RCGrid.cpp 
     src/IIRFilter.cpp 
     src/SineWave.cpp
-    src/FrequencyResponse.cpp
     src/FIRFilter.cpp
     src/RectangularWindow.cpp
+    src/BlackmanWindow.cpp
+    src/FFT.cpp
+    src/Sampling.cpp
 )
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${FFTW_HEADER_PATH})
