@@ -34,7 +34,7 @@ const vector<double> &FIRFilter::getFilterCoefficients() const {
  * stop band
  */
 vector<double> FIRFilter::generateIdealFrequencyResponse() const {
-  int frequencyRangeHz = nyquistFrequency(samplingRateHz);
+  const int frequencyRangeHz{nyquistFrequency(samplingRateHz)};
 
   vector<double> response;
   for (int i = 1; i < frequencyRangeHz; i++) {

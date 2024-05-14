@@ -70,8 +70,8 @@ RCGrid::calculateIIRFilterCoefficients(const int cutoffFrequencyHz,
   B = RC / (T + RC)
   */
 
-  double samplingTime{1 / (double)samplingRateHz};
-  double rcConstant{calculateRCConstant(cutoffFrequencyHz)};
+  const double samplingTime{1 / (double)samplingRateHz};
+  const double rcConstant{calculateRCConstant(cutoffFrequencyHz)};
 
   IIRFilterCoefficients coefficients(samplingTime / (samplingTime + rcConstant),
                                      rcConstant / (samplingTime + rcConstant));

@@ -16,9 +16,9 @@ public:
   std::vector<double> calculateResponseDB(int fromFrequencyHz, int toFrequencyHz) const;
 
 private:
-  int cutoffFrequencyHz;
+  const int cutoffFrequencyHz;
   const BlackmanWindow &window;
-  int samplingRateHz;
+  const int samplingRateHz;
   std::vector<double> filterCoefficients;
 
   std::vector<double> generateIdealFrequencyResponse() const;
