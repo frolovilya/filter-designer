@@ -58,13 +58,14 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
   }
 
   auto idealFrequencyResponse = generateIdealFrequencyResponse();
-  vector<complex<double>> filterTimeDomain = fftInverse(idealFrequencyResponse);
+  vector<complex<double>> filterTimeDomain =
+      fftInverse(toComplexVector(idealFrequencyResponse));
 
   vector<double> coefficients;
-  for (int i = coefficientsCount / 2 - 1; i >= 1; i--) {
+  for (int i = coefficientsCount / 2; i >= 1; i--) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
-  for (int i = 1; i < coefficientsCount / 2; i++) {
+  for (int i = 1; i < coefficientsCount / 2 + 1; i++) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
 
@@ -86,14 +87,14 @@ vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
     paddedCoefficients.push_back(0);
   }
 
-  auto fftResult = fftDirect(paddedCoefficients);
+  auto fftResult = fftDirect(toComplexVector(paddedCoefficients));
   vector<double> frequencyResponse;
   for (int i = fromFrequencyHz - 1; i < toFrequencyHz; i++) {
     frequencyResponse.push_back(abs(fftResult[i])); // Mod(complex)
   }
   frequencyResponse = normalize(frequencyResponse);
   for (double &value : frequencyResponse) {
-    value = toDB(value);
+    value = toDB(abs(value));
   }
 
   return frequencyResponse;

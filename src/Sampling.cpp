@@ -4,7 +4,7 @@
 int nyquistFrequency(int samplingRate) { return samplingRate / 2; }
 
 double maxAbsValue(const std::vector<double> &samples) {
-  double maxValue = 1;
+  double maxValue = 0;
   for (const double &sample : samples) {
     if (abs(sample) > maxValue) {
       maxValue = abs(sample);
@@ -26,5 +26,5 @@ std::vector<double> normalize(const std::vector<double> &samples) {
 }
 
 double toDB(double value) {
-  return 20 * log10(abs(value));
+  return 20 * log10(value);
 }
