@@ -7,12 +7,12 @@ class SineWave {
 public:
   SineWave(int samplingRateHz);
   
-  std::vector<double> generatePeriod(int frequency, double amplitude);
+  std::vector<double> generatePeriod(int frequency, double amplitude) const;
 
 private:
   const int samplingRateHz;
 
-  int calculatePeriodSamplesCount(int frequency);
+  int calculatePeriodSamplesCount(int frequency) const;
 };
 
 #endif

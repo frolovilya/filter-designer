@@ -9,7 +9,7 @@ IIRFilter::IIRFilter(const RCGrid &rcGrid) : rcGrid{rcGrid} {}
 const RCGrid &IIRFilter::getRCGrid() const { return rcGrid; }
 
 vector<double> IIRFilter::calculateResponseDB(int fromFrequencyHz,
-                                              int toFrequencyHz) {
+                                              int toFrequencyHz) const {
   if (fromFrequencyHz < 1) {
     throw invalid_argument("calculateResponseDb: fromFrequencyHz must be >= 1");
   }
@@ -31,7 +31,7 @@ vector<double> IIRFilter::calculateResponseDB(int fromFrequencyHz,
   return frequencyResponse;
 }
 
-vector<double> IIRFilter::apply(const vector<double> &samples) {
+vector<double> IIRFilter::apply(const vector<double> &samples) const {
   double vOutFeedback = 0;
 
   vector<double> result;

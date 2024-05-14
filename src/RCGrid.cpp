@@ -24,7 +24,7 @@ IIRFilterCoefficients RCGrid::getIIRFilterCoefficients() const {
   return coefficients;
 }
 
-double RCGrid::calculateRCConstant(const int frequencyHz) {
+double RCGrid::calculateRCConstant(const int frequencyHz) const {
   if (frequencyHz < 1) {
     throw invalid_argument("calculateRCConstant: frequencyHz must be >= 1");
   }
@@ -37,7 +37,7 @@ double RCGrid::calculateRCConstant(const int frequencyHz) {
 
 IIRFilterCoefficients
 RCGrid::calculateIIRFilterCoefficients(const int cutoffFrequencyHz,
-                                       const int samplingRateHz) {
+                                       const int samplingRateHz) const {
   if (cutoffFrequencyHz < 1) {
     throw invalid_argument(
         "calculateIIRFilterCoefficients: cutoffFrequencyHz must be >= 1");

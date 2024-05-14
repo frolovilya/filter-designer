@@ -13,7 +13,7 @@ public:
   int getCutoffFrequency() const;
   int getSamplingRate() const;
   const std::vector<double> &getFilterCoefficients() const;
-  std::vector<double> calculateResponseDB(int fromFrequencyHz, int toFrequencyHz);
+  std::vector<double> calculateResponseDB(int fromFrequencyHz, int toFrequencyHz) const;
 
 private:
   int cutoffFrequencyHz;

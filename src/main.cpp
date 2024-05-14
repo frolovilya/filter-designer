@@ -66,7 +66,7 @@ void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
   }
   cout << "\n";
 
-  auto frequencyResponse = firFilter.calculateResponseDB(0, 1000);
+  auto frequencyResponse = firFilter.calculateResponseDB(1, 1000);
   cout << "Frequency Response\n";
   for (const double &v : frequencyResponse) {
     cout << v << " ";
@@ -82,7 +82,7 @@ void designIIRFilter(const int cutoffFrequencyHz, const int samplingRateHz) {
   cout << "IIR Coefficients A=" << coefficients.a << "; B=" << coefficients.b
        << "\n";
 
-  auto frequencyResponse = iirFilter.calculateResponseDB(0, 1000);
+  auto frequencyResponse = iirFilter.calculateResponseDB(1, 1000);
   cout << "Frequency Response\n";
   for (const double &v : frequencyResponse) {
     cout << v << " ";

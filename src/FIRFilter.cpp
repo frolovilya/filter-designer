@@ -11,6 +11,13 @@ FIRFilter::FIRFilter(int cutoffFrequencyHz, int coefficientsCount,
                      const BlackmanWindow &window, int samplingRateHz)
     : cutoffFrequencyHz{cutoffFrequencyHz}, window{window},
       samplingRateHz{samplingRateHz} {
+  if (cutoffFrequencyHz < 1) {
+    throw invalid_argument("FIRFilter: cutoffFrequencyHz must be >= 1");
+  }
+  if (samplingRateHz < 1) {
+    throw invalid_argument("FIRFilter: samplingRateHz must be >= 1");
+  }
+
   filterCoefficients = calculateFilterCoefficients(coefficientsCount);
 }
 
@@ -45,6 +52,11 @@ vector<double> FIRFilter::generateIdealFrequencyResponse() const {
  */
 vector<double>
 FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
+  if (coefficientsCount < 1) {
+    throw invalid_argument(
+        "calculateFilterCoefficients: coefficientsCount must be >= 1");
+  }
+
   auto idealFrequencyResponse = generateIdealFrequencyResponse();
   vector<complex<double>> filterTimeDomain = fftInverse(idealFrequencyResponse);
 
@@ -60,15 +72,23 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
 }
 
 vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
-                                              int toFrequencyHz) {
-  vector <double> paddedCoefficients(filterCoefficients);
+                                              int toFrequencyHz) const {
+  if (fromFrequencyHz < 1) {
+    throw invalid_argument("calculateResponseDb: fromFrequencyHz must be >= 1");
+  }
+  if (toFrequencyHz <= fromFrequencyHz) {
+    throw invalid_argument(
+        "calculateResponseDb: toFrequencyHz must be > fromFrequencyHz");
+  }
+
+  vector<double> paddedCoefficients(filterCoefficients);
   for (int i = filterCoefficients.size(); i < samplingRateHz / 2; i++) {
     paddedCoefficients.push_back(0);
   }
 
   auto fftResult = fftDirect(paddedCoefficients);
   vector<double> frequencyResponse;
-  for (int i = fromFrequencyHz + 1; i < toFrequencyHz; i++) {
+  for (int i = fromFrequencyHz - 1; i < toFrequencyHz; i++) {
     frequencyResponse.push_back(abs(fftResult[i])); // Mod(complex)
   }
   frequencyResponse = normalize(frequencyResponse);

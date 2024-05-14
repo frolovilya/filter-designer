@@ -10,7 +10,7 @@ SineWave::SineWave(const int samplingRateHz) : samplingRateHz{samplingRateHz} {
   }
 }
 
-int SineWave::calculatePeriodSamplesCount(const int frequency) {
+int SineWave::calculatePeriodSamplesCount(const int frequency) const {
   if (frequency < 1) {
     throw invalid_argument(
         "calculatePeriodSamplesCount: frequency must be >= 1");
@@ -21,7 +21,7 @@ int SineWave::calculatePeriodSamplesCount(const int frequency) {
 }
 
 vector<double> SineWave::generatePeriod(const int frequency,
-                                        const double amplitude) {
+                                        const double amplitude) const {
   if (frequency < 1) {
     throw invalid_argument("generatePeriod: frequency must be >= 1");
   }

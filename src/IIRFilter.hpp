@@ -10,13 +10,12 @@ public:
   IIRFilter(const RCGrid &rcGrid);
 
   const RCGrid& getRCGrid() const;
-  std::vector<double> calculateResponseDB(int fromFrequencyHz, int toFrequencyHz);
+  std::vector<double> calculateResponseDB(int fromFrequencyHz, int toFrequencyHz) const;
 
 private:
   const RCGrid &rcGrid;
 
-  double apply(double vIn);
-  std::vector<double> apply(const std::vector<double> &samples);
+  std::vector<double> apply(const std::vector<double> &samples) const;
 };
 
 #endif
