@@ -1,7 +1,7 @@
 #include "FFT.hpp"
-#include "FIRFilter.hpp"
-#include "IIRFilter.hpp"
-#include "RCGrid.hpp"
+#include "fir/FIRFilter.hpp"
+#include "iir/IIRFilter.hpp"
+#include "iir/RCGrid.hpp"
 #include "Sampling.hpp"
 #include <cmath>
 #include <iostream>

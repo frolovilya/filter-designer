@@ -9,18 +9,18 @@ add_compile_options(-Wall -Wextra -pedantic -Werror)
 project(filter-designer)
 
 add_library(filter-designer-src
-  src/RCGrid.cpp 
-  src/IIRFilter.cpp 
+  src/iir/RCGrid.cpp 
+  src/iir/IIRFilter.cpp 
   src/SineWave.cpp
-  src/FIRFilter.cpp
-  src/RectangularWindow.cpp
-  src/BlackmanWindow.cpp
+  src/fir/FIRFilter.cpp
+  src/fir/RectangularWindow.cpp
+  src/fir/BlackmanWindow.cpp
   src/FFT.cpp
   src/Sampling.cpp
 )
 
 add_executable(filter-designer 
-    src/main.cpp
+    src/Main.cpp
 )
 
 find_path(FFTW_HEADER_PATH fftw3.h)

@@ -4,7 +4,10 @@ set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-file(GLOB UNIT_TESTS_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
+file(GLOB UNIT_TESTS_SRC_FILES 
+  ${PROJECT_SOURCE_DIR}/test/*.cpp 
+  ${PROJECT_SOURCE_DIR}/test/iir/*.cpp
+  ${PROJECT_SOURCE_DIR}/test/fir/*.cpp)
 
 add_executable(filter-designer-tests
   ${UNIT_TESTS_SRC_FILES}

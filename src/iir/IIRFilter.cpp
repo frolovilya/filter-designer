@@ -1,6 +1,6 @@
 #include "IIRFilter.hpp"
-#include "Sampling.hpp"
-#include "SineWave.hpp"
+#include "../Sampling.hpp"
+#include "../SineWave.hpp"
 
 using namespace std;
 

@@ -1,4 +1,4 @@
-#include "../src/IIRFilter.hpp"
+#include "../../src/iir/IIRFilter.hpp"
 #include <boost/test/unit_test.hpp>
 
 using namespace std;

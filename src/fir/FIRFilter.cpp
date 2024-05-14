@@ -1,6 +1,6 @@
 #include "FIRFilter.hpp"
-#include "FFT.hpp"
-#include "Sampling.hpp"
+#include "../FFT.hpp"
+#include "../Sampling.hpp"
 #include <algorithm>
 #include <cmath>
 #include <iostream>

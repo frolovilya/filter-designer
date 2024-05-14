@@ -1,15 +1,19 @@
-#include "../src/BlackmanWindow.hpp"
+#include "../../src/fir/RectangularWindow.hpp"
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_SUITE(BlackmanWindow_test)
+BOOST_AUTO_TEST_SUITE(RectangularWindow_test)
 
 BOOST_AUTO_TEST_CASE(coefficients_test) {
   const int windowSize = 10;
 
-  auto window = BlackmanWindow();
+  auto window = RectangularWindow();
   auto coefficients = window.getCoefficients(windowSize);
 
   BOOST_TEST(coefficients.size() == windowSize);
+
+  for (const double &coefficient : coefficients) {
+    BOOST_TEST(coefficient == 1);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(window_apply_test) {
@@ -18,11 +22,10 @@ BOOST_AUTO_TEST_CASE(window_apply_test) {
     samples.push_back(i / 100);
   }
 
-  auto window = BlackmanWindow();
+  auto window = RectangularWindow();
   auto windowedSamples = window.apply(samples);
 
-  BOOST_TEST(samples.size() == windowedSamples.size());
-  BOOST_TEST(samples <= windowedSamples);
+  BOOST_TEST(samples == windowedSamples);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
