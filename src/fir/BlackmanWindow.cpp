@@ -18,15 +18,3 @@ vector<double> BlackmanWindow::getCoefficients(const int windowSize) const {
 
   return coefficients;
 }
-
-vector<double>
-BlackmanWindow::apply(const vector<double> &filterCoefficients) const {
-  auto windowCoefficients = getCoefficients(filterCoefficients.size());
-
-  vector<double> result;
-  for (unsigned int i = 0; i < filterCoefficients.size(); i++) {
-    result.push_back(filterCoefficients[i] * windowCoefficients[i]);
-  }
-
-  return result;
-}

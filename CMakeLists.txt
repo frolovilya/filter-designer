@@ -13,6 +13,7 @@ add_library(filter-designer-src
   src/iir/IIRFilter.cpp 
   src/SineWave.cpp
   src/fir/FIRFilter.cpp
+  src/fir/Window.cpp
   src/fir/RectangularWindow.cpp
   src/fir/BlackmanWindow.cpp
   src/FFT.cpp

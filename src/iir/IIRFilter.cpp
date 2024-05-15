@@ -6,7 +6,17 @@ using namespace std;
 
 IIRFilter::IIRFilter(const RCGrid &rcGrid) : rcGrid{rcGrid} {}
 
-const RCGrid &IIRFilter::getRCGrid() const { return rcGrid; }
+int IIRFilter::getCutoffFrequency() const {
+  return rcGrid.getCutoffFrequency();
+}
+
+int IIRFilter::getSamplingRate() const { return rcGrid.getSamplingRate(); }
+
+vector<double> IIRFilter::getFilterCoefficients() const {
+  IIRFilterCoefficients coefficients = rcGrid.getIIRFilterCoefficients();
+  vector<double> result{coefficients.a, coefficients.b};
+  return result;
+};
 
 vector<double> IIRFilter::calculateResponseDB(int fromFrequencyHz,
                                               int toFrequencyHz) const {

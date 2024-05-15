@@ -8,7 +8,7 @@
 using namespace std;
 
 FIRFilter::FIRFilter(int cutoffFrequencyHz, int coefficientsCount,
-                     const BlackmanWindow &window, int samplingRateHz)
+                     const Window &window, int samplingRateHz)
     : cutoffFrequencyHz{cutoffFrequencyHz}, window{window},
       samplingRateHz{samplingRateHz} {
   if (cutoffFrequencyHz < 1) {
@@ -25,7 +25,7 @@ int FIRFilter::getCutoffFrequency() const { return cutoffFrequencyHz; }
 
 int FIRFilter::getSamplingRate() const { return samplingRateHz; }
 
-const vector<double> &FIRFilter::getFilterCoefficients() const {
+vector<double> FIRFilter::getFilterCoefficients() const {
   return filterCoefficients;
 }
 

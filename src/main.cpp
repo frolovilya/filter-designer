@@ -1,4 +1,5 @@
 #include "FFT.hpp"
+#include "Filter.hpp"
 #include "fir/FIRFilter.hpp"
 #include "iir/IIRFilter.hpp"
 #include "iir/RCGrid.hpp"
@@ -51,6 +52,22 @@ int parseSamplingRate(const unordered_map<string, string> &arguments) {
   return parseIntParameter("samplingRate", 1, arguments);
 }
 
+void describeFilter(const Filter& filter) {
+  cout << "FIR Coefficients\n";
+  auto coefficients = filter.getFilterCoefficients();
+  for (const double &c : coefficients) {
+    cout << c << " ";
+  }
+  cout << "\n";
+
+  auto frequencyResponse = filter.calculateResponseDB(1, 1000);
+  cout << "Frequency Response\n";
+  for (const double &v : frequencyResponse) {
+    cout << v << " ";
+  }
+  cout << "\n";
+}
+
 void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
                      const unordered_map<string, string> &arguments) {
   int filterSize = parseIntParameter("filterSize", 100, arguments);
@@ -59,35 +76,14 @@ void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
   FIRFilter firFilter = FIRFilter(cutoffFrequencyHz, filterSize,
                                   BlackmanWindow(), samplingRateHz);
 
-  cout << "FIR Coefficients\n";
-  auto coefficients = firFilter.getFilterCoefficients();
-  for (const double &c : coefficients) {
-    cout << c << " ";
-  }
-  cout << "\n";
-
-  auto frequencyResponse = firFilter.calculateResponseDB(1, 1000);
-  cout << "Frequency Response\n";
-  for (const double &v : frequencyResponse) {
-    cout << v << " ";
-  }
-  cout << "\n";
+  describeFilter(firFilter);
 }
 
 void designIIRFilter(const int cutoffFrequencyHz, const int samplingRateHz) {
   auto rcGrid = RCGrid(cutoffFrequencyHz, samplingRateHz);
   auto iirFilter = IIRFilter(rcGrid);
 
-  IIRFilterCoefficients coefficients = rcGrid.getIIRFilterCoefficients();
-  cout << "IIR Coefficients A=" << coefficients.a << "; B=" << coefficients.b
-       << "\n";
-
-  auto frequencyResponse = iirFilter.calculateResponseDB(1, 1000);
-  cout << "Frequency Response\n";
-  for (const double &v : frequencyResponse) {
-    cout << v << " ";
-  }
-  cout << "\n";
+  describeFilter(iirFilter);
 }
 
 int main(int argc, char *argv[]) {

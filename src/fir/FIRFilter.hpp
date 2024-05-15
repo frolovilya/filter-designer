@@ -1,23 +1,25 @@
 #ifndef FIR_FILTER_H
 #define FIR_FILTER_H
 
-#include "RectangularWindow.hpp"
+#include "../Filter.hpp"
 #include "BlackmanWindow.hpp"
+#include "RectangularWindow.hpp"
 #include <vector>
 
-class FIRFilter {
+class FIRFilter : public Filter {
 public:
-  FIRFilter(int cutoffFrequencyHz, int coefficientsCount,
-            const BlackmanWindow &window, int samplingRateHz);
+  FIRFilter(int cutoffFrequencyHz, int coefficientsCount, const Window &window,
+            int samplingRateHz);
 
-  int getCutoffFrequency() const;
-  int getSamplingRate() const;
-  const std::vector<double> &getFilterCoefficients() const;
-  std::vector<double> calculateResponseDB(int fromFrequencyHz, int toFrequencyHz) const;
+  int getCutoffFrequency() const override;
+  int getSamplingRate() const override;
+  std::vector<double> getFilterCoefficients() const override;
+  std::vector<double> calculateResponseDB(int fromFrequencyHz,
+                                          int toFrequencyHz) const override;
 
 private:
   const int cutoffFrequencyHz;
-  const BlackmanWindow &window;
+  const Window &window;
   const int samplingRateHz;
   std::vector<double> filterCoefficients;
 

@@ -1,12 +1,12 @@
 #ifndef BLACKMAN_WINDOW_H
 #define BLACKMAN_WINDOW_H
 
+#include "Window.hpp"
 #include <vector>
 
-class BlackmanWindow {
+class BlackmanWindow : public Window {
 public:
-  std::vector<double> getCoefficients(int windowSize) const;
-  std::vector<double> apply(const std::vector<double> &filterCoefficients) const;
+  std::vector<double> getCoefficients(int windowSize) const override;
 };
 
 #endif
