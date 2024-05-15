@@ -5,6 +5,8 @@
 
 class Window {
 public:
+  virtual ~Window() {}
+
   virtual std::vector<double> getCoefficients(int windowSize) const = 0;
   std::vector<double> apply(const std::vector<double> &filterCoefficients) const;
 };

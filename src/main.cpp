@@ -1,9 +1,10 @@
 #include "FFT.hpp"
 #include "Filter.hpp"
+#include "Sampling.hpp"
 #include "fir/FIRFilter.hpp"
+#include "fir/Window.hpp"
 #include "iir/IIRFilter.hpp"
 #include "iir/RCGrid.hpp"
-#include "Sampling.hpp"
 #include <cmath>
 #include <iostream>
 #include <string>
@@ -22,11 +23,16 @@ const unordered_map<string, string> argumentsToMap(int argc, char *argv[]) {
 }
 
 string parseParameter(const string parameterName,
-                      const unordered_map<string, string> &arguments) {
+                      const unordered_map<string, string> &arguments,
+                      string defaultValue = "") {
   auto pos = arguments.find("--" + parameterName);
   if (pos == arguments.end()) {
-    throw invalid_argument("'--" + parameterName +
-                           "' parameter must be specified");
+    if (defaultValue.empty()) {
+      throw invalid_argument("'--" + parameterName +
+                             "' parameter must be specified");
+    } else {
+      return defaultValue;
+    }
   } else {
     return pos->second;
   }
@@ -52,7 +58,7 @@ int parseSamplingRate(const unordered_map<string, string> &arguments) {
   return parseIntParameter("samplingRate", 1, arguments);
 }
 
-void describeFilter(const Filter& filter) {
+void describeFilter(const Filter &filter) {
   cout << "FIR Coefficients\n";
   auto coefficients = filter.getFilterCoefficients();
   for (const double &c : coefficients) {
@@ -73,10 +79,24 @@ void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
   int filterSize = parseIntParameter("filterSize", 100, arguments);
   cout << "Filter Size " << filterSize << "\n";
 
-  FIRFilter firFilter = FIRFilter(cutoffFrequencyHz, filterSize,
-                                  BlackmanWindow(), samplingRateHz);
+  string windowType = parseParameter("window", arguments, "rectangular");
+  Window *window;
+  if (windowType == "blackman") {
+    window = new BlackmanWindow();
+  } else if (windowType == "rectangular") {
+    window = new RectangularWindow();
+  } else {
+    throw invalid_argument(
+        "Invalid --window value, supporting 'blackmand' and 'rectangular'");
+  }
+  cout << "Window Type " << windowType << "\n";
+
+  FIRFilter firFilter =
+      FIRFilter(cutoffFrequencyHz, filterSize, *window, samplingRateHz);
 
   describeFilter(firFilter);
+
+  delete window;
 }
 
 void designIIRFilter(const int cutoffFrequencyHz, const int samplingRateHz) {
@@ -90,7 +110,8 @@ int main(int argc, char *argv[]) {
   const auto arguments{argumentsToMap(argc, argv)};
 
   if (arguments.size() == 0) {
-    cout << "Usage: filter-designer --frequency 100 --samplingRate 48000\n";
+    cout << "Usage: filter-designer --filter fir --filterSize 100 --window "
+            "blackman --frequency 100 --samplingRate 48000\n";
     return 0;
   }
 
