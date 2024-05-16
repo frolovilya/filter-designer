@@ -5,6 +5,12 @@
 #include "../shared/iir/IIRFilter.hpp"
 #include <QDebug>
 #include <sstream>
+#include <QAreaSeries>
+#include <QQuickItem>
+#include <QQuickView>
+#include <QRandomGenerator>
+#include <QtMath>
+#include <QXYSeries>
 
 Backend::Backend(QObject *parent)
     : QObject{parent},
@@ -75,6 +81,27 @@ QString Backend::getCoefficientsString() const {
     return QString::fromStdString(s);
 }
 
+int Backend::getCoefficientsCount() const {
+    return coefficients.size();
+}
+double Backend::getCoefficientsMinValue() const {
+    return *std::min_element(coefficients.begin(), coefficients.end());
+}
+double Backend::getCoefficientsMaxValue() const {
+    return *std::max_element(coefficients.begin(), coefficients.end());
+}
+
+int Backend::getFrequencyResponseBinsCount() const {
+    return frequencyResponse.size();
+}
+double Backend::getFrequencyResponseMinValue() const {
+    return *std::min_element(frequencyResponse.begin(), frequencyResponse.end());
+}
+double Backend::getFrequencyResponseMaxValue() const {
+    return *std::max_element(frequencyResponse.begin(), frequencyResponse.end());
+}
+
+
 void Backend::recalculate() {
     qInfo() << "Re-calculating coefficients\n";
 
@@ -95,7 +122,41 @@ void Backend::recalculate() {
         filter = std::unique_ptr<Filter>(new IIRFilter(rcGrid));
     }
 
-    coefficients = (*filter).getFilterCoefficients();
+    coefficients = filter->getFilterCoefficients();
+    frequencyResponse = filter->calculateResponseDB(1, 1000);
 
     emit calculationCompleted();
 }
+
+void Backend::updateCoefficients(QAbstractSeries *series) {
+    if (series) {
+        QList<QPointF> points;
+        points.reserve(coefficients.size());
+        for (unsigned int j = 0; j < coefficients.size(); j++) {
+            qreal x = j;
+            qreal y = coefficients[j];
+            points.append(QPointF(x, y));
+        }
+
+        auto xySeries = static_cast<QXYSeries *>(series);
+        // Use replace instead of clear + append, it's optimized for performance
+        xySeries->replace(points);
+    }
+}
+
+void Backend::updateFrequencyResponse(QAbstractSeries *series) {
+    if (series) {
+        QList<QPointF> points;
+        points.reserve(frequencyResponse.size());
+        for (unsigned int j = 0; j < frequencyResponse.size(); j++) {
+            qreal x = j;
+            qreal y = frequencyResponse[j];
+            points.append(QPointF(x, y));
+        }
+
+        auto xySeries = static_cast<QXYSeries *>(series);
+        // Use replace instead of clear + append, it's optimized for performance
+        xySeries->replace(points);
+    }
+}
+

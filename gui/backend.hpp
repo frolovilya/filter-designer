@@ -2,8 +2,12 @@
 #define BACKEND_H
 
 #include <QObject>
+#include <QList>
+#include <QPointF>
 #include <string>
 #include <vector>
+
+QT_FORWARD_DECLARE_CLASS(QAbstractSeries)
 
 class Backend : public QObject
 {
@@ -39,7 +43,15 @@ public:
     Q_INVOKABLE QString getFilterType() const;
     Q_INVOKABLE QString getWindowType() const;
     Q_INVOKABLE int getFilterSize() const;
+
+    Q_INVOKABLE int getCoefficientsCount() const;
+    Q_INVOKABLE double getCoefficientsMinValue() const;
+    Q_INVOKABLE double getCoefficientsMaxValue() const;
     Q_INVOKABLE QString getCoefficientsString() const;
+
+    Q_INVOKABLE int getFrequencyResponseBinsCount() const;
+    Q_INVOKABLE double getFrequencyResponseMinValue() const;
+    Q_INVOKABLE double getFrequencyResponseMaxValue() const;
 
 public slots:
     void setSamplingRate(int value);
@@ -49,6 +61,8 @@ public slots:
     void setWindowType(QString value);
     void setFilterSize(int value);
     void recalculate();
+    void updateCoefficients(QAbstractSeries *series);
+    void updateFrequencyResponse(QAbstractSeries *series);
 
 signals:
     void recalculationNeeded();
@@ -62,6 +76,7 @@ private:
     std::string windowType;
     int filterSize;
     std::vector<double> coefficients;
+    std::vector<double> frequencyResponse;
 };
 
 #endif // BACKEND_H

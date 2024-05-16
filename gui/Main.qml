@@ -120,23 +120,46 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     legend.visible: false
                     backgroundRoundness: 0
+                    theme: ChartView.ChartThemeQt
                     margins.left: 0
                     margins.right: 0
                     margins.top: 0
                     margins.bottom: 0
                     Layout.margins: -margin
 
+                    ValuesAxis {
+                        id: frequencyAxisX
+                        min: 0
+                        max: 1000
+                    }
+
+                    ValuesAxis {
+                        id: magnitudeAxisY
+                        min: -100
+                        max: 0
+                    }
+
                     LineSeries {
-                        XYPoint { x: 0; y: 0 }
-                        XYPoint { x: 1; y: -1 }
-                        XYPoint { x: 2; y: -2 }
-                        XYPoint { x: 3; y: -3 }
-                        XYPoint { x: 4; y: -4 }
-                        XYPoint { x: 5; y: -5 }
+                        id: frequencyResponseSeries
+                        axisX: frequencyAxisX
+                        axisY: magnitudeAxisY
+                        color: "springgreen"
+                        width: 2
+                    }
+
+                    Connections {
+                        target: backend
+                        function onCalculationCompleted() {
+                            frequencyAxisX.max = backend.getFrequencyResponseBinsCount()
+                            magnitudeAxisY.min = backend.getFrequencyResponseMinValue()
+                            magnitudeAxisY.max = backend.getFrequencyResponseMaxValue()
+                            backend.updateFrequencyResponse(frequencyResponseSeries)
+                        }
                     }
                 }
 
                 ChartView {
+                    id: filterCoefficients
                     title: "Filter Coefficients"
                     Layout.minimumWidth: 300
                     Layout.minimumHeight: 300
@@ -144,6 +167,7 @@ ApplicationWindow {
                     Layout.fillWidth: true
                     legend.visible: false
                     backgroundRoundness: 0
+                    theme: ChartView.ChartThemeQt
                     margins.left: 0
                     margins.right: 0
                     margins.top: 0
@@ -151,13 +175,34 @@ ApplicationWindow {
                     Layout.margins: -margin
                     visible: isFIR()
 
+                    ValuesAxis {
+                        id: indexAxisX
+                        min: 0
+                        max: 1000
+                    }
+
+                    ValuesAxis {
+                        id: valueAxisY
+                        min: -0.5
+                        max: 1
+                    }
+
                     LineSeries {
-                        XYPoint { x: 0; y: 0 }
-                        XYPoint { x: 1; y: -1 }
-                        XYPoint { x: 2; y: -2 }
-                        XYPoint { x: 3; y: -3 }
-                        XYPoint { x: 4; y: -4 }
-                        XYPoint { x: 5; y: -5 }
+                        id: coefficientsSeries
+                        axisX: indexAxisX
+                        axisY: valueAxisY
+                        color: "tomato"
+                        width: 2
+                    }
+
+                    Connections {
+                        target: backend
+                        function onCalculationCompleted() {
+                            indexAxisX.max = backend.getCoefficientsCount()
+                            valueAxisY.min = backend.getCoefficientsMinValue()
+                            valueAxisY.max = backend.getCoefficientsMaxValue()
+                            backend.updateCoefficients(coefficientsSeries)
+                        }
                     }
                 }
             }
@@ -170,9 +215,10 @@ ApplicationWindow {
 
                 TextArea.flickable: TextArea {
                     id: coefficients
-                    text: backend.getSamplingRate()
                     wrapMode: TextEdit.WordWrap
                     background: Rectangle { color: "white" }
+
+                    color: "dimgray"
 
                     Connections {
                         target: backend
