@@ -10,6 +10,14 @@ ApplicationWindow {
     title: qsTr("Filter Designer")
     readonly property int margin: 11
 
+    palette.window: "dimgray"
+    palette.windowText: "white"
+    palette.base: "black"
+    palette.button: "black"
+    palette.text: "white"
+    palette.buttonText: "white"
+    palette.highlight: "darkorange"
+
     Component.onCompleted: {
         width = mainLayout.implicitWidth + 2 * margin
         height = mainLayout.implicitHeight + 2 * margin
@@ -119,8 +127,10 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     legend.visible: false
+                    antialiasing: true
                     backgroundRoundness: 0
-                    theme: ChartView.ChartThemeQt
+                    backgroundColor: "black"
+                    titleColor: "white"
                     margins.left: 0
                     margins.right: 0
                     margins.top: 0
@@ -131,12 +141,19 @@ ApplicationWindow {
                         id: frequencyAxisX
                         min: 0
                         max: 1000
+                        gridVisible: false
+                        lineVisible: false
+                        labelFormat: "%.0f"
+                        labelsColor: "dimgray"
                     }
 
                     ValuesAxis {
                         id: magnitudeAxisY
                         min: -100
                         max: 0
+                        gridVisible: false
+                        lineVisible: false
+                        labelsColor: "dimgray"
                     }
 
                     LineSeries {
@@ -166,8 +183,10 @@ ApplicationWindow {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     legend.visible: false
+                    antialiasing: true
                     backgroundRoundness: 0
-                    theme: ChartView.ChartThemeQt
+                    backgroundColor: "black"
+                    titleColor: "white"
                     margins.left: 0
                     margins.right: 0
                     margins.top: 0
@@ -179,12 +198,19 @@ ApplicationWindow {
                         id: indexAxisX
                         min: 0
                         max: 1000
+                        gridVisible: false
+                        lineVisible: false
+                        labelFormat: "%.0f"
+                        labelsColor: "dimgray"
                     }
 
                     ValuesAxis {
                         id: valueAxisY
                         min: -0.5
                         max: 1
+                        gridVisible: false
+                        lineVisible: false
+                        labelsColor: "dimgray"
                     }
 
                     LineSeries {
@@ -216,7 +242,7 @@ ApplicationWindow {
                 TextArea.flickable: TextArea {
                     id: coefficients
                     wrapMode: TextEdit.WordWrap
-                    background: Rectangle { color: "white" }
+                    background: Rectangle { color: "black" }
 
                     color: "dimgray"
 
