@@ -1,6 +1,6 @@
-#include "../src/FFT.hpp"
-#include "../src/Sampling.hpp"
-#include "../src/SineWave.hpp"
+#include "../shared/FFT.hpp"
+#include "../shared/Sampling.hpp"
+#include "../shared/SineWave.hpp"
 #include <boost/test/unit_test.hpp>
 #include <complex>
 

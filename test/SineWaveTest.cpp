@@ -1,5 +1,5 @@
-#include "../src/SineWave.hpp"
-#include "../src/FFT.hpp"
+#include "../shared/SineWave.hpp"
+#include "../shared/FFT.hpp"
 #include <boost/test/unit_test.hpp>
 #include <complex>
 

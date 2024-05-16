@@ -1,4 +1,4 @@
-#include "../../src/fir/FIRFilter.hpp"
+#include "../../shared/fir/FIRFilter.hpp"
 #include <boost/test/unit_test.hpp>
 
 using namespace std;

@@ -1,4 +1,4 @@
-#include "../../src/iir/RCGrid.hpp"
+#include "../../shared/iir/RCGrid.hpp"
 #include <boost/test/unit_test.hpp>
 
 using namespace std;

@@ -1,4 +1,4 @@
-#include "../../src/fir/RectangularWindow.hpp"
+#include "../../shared/fir/RectangularWindow.hpp"
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(RectangularWindow_test)

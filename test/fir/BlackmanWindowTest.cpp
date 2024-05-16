@@ -1,4 +1,4 @@
-#include "../../src/fir/BlackmanWindow.hpp"
+#include "../../shared/fir/BlackmanWindow.hpp"
 #include <boost/test/unit_test.hpp>
 
 BOOST_AUTO_TEST_SUITE(BlackmanWindow_test)
