@@ -1,11 +1,10 @@
-#include "../shared/FFT.hpp"
 #include "../shared/Filter.hpp"
-#include "../shared/Sampling.hpp"
 #include "../shared/fir/FIRFilter.hpp"
 #include "../shared/fir/Window.hpp"
+#include "../shared/fir/RectangularWindow.hpp"
+#include "../shared/fir/BlackmanWindow.hpp"
 #include "../shared/iir/IIRFilter.hpp"
 #include "../shared/iir/RCGrid.hpp"
-#include <cmath>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -80,11 +79,11 @@ void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
   cout << "Filter Size " << filterSize << "\n";
 
   string windowType = parseParameter("window", arguments, "rectangular");
-  Window *window;
+  unique_ptr<Window> window;
   if (windowType == "blackman") {
-    window = new BlackmanWindow();
+      window = unique_ptr<Window>(new BlackmanWindow());
   } else if (windowType == "rectangular") {
-    window = new RectangularWindow();
+      window = unique_ptr<Window>(new RectangularWindow());
   } else {
     throw invalid_argument(
         "Invalid --window value, supporting 'blackmand' and 'rectangular'");
@@ -95,8 +94,6 @@ void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
       FIRFilter(cutoffFrequencyHz, filterSize, *window, samplingRateHz);
 
   describeFilter(firFilter);
-
-  delete window;
 }
 
 void designIIRFilter(const int cutoffFrequencyHz, const int samplingRateHz) {

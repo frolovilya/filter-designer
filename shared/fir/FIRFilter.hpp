@@ -2,8 +2,7 @@
 #define FIR_FILTER_H
 
 #include "../Filter.hpp"
-#include "BlackmanWindow.hpp"
-#include "RectangularWindow.hpp"
+#include "Window.hpp"
 #include <vector>
 
 class FIRFilter : public Filter {

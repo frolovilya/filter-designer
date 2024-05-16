@@ -1,4 +1,5 @@
 #include "../../shared/fir/FIRFilter.hpp"
+#include "../../shared/fir/BlackmanWindow.hpp"
 #include <boost/test/unit_test.hpp>
 
 using namespace std;
