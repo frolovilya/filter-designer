@@ -1,6 +1,5 @@
 #include "FFT.hpp"
 #include "fftw3.h"
-#include <cmath>
 #include <vector>
 
 using namespace std;

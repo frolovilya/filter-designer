@@ -14,8 +14,6 @@ qt_add_qml_module(filter-designer
     QML_FILES
         Main.qml
         SOURCES backend.hpp backend.cpp
-        #RESOURCES cmd/CMakeLists.txt
-        #RESOURCES shared/CMakeLists.txt
 )
 
 set_target_properties(filter-designer PROPERTIES

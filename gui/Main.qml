@@ -38,10 +38,10 @@ ApplicationWindow {
             }
             SpinBox {
                 id: samplingRate
-                from: 1000
-                to: 192000
+                from: backend.samplingRateFrom
+                to: backend.samplingRateTo
                 editable: true
-                value: backend.getSamplingRate()
+                value: backend.defaultSamplingRate
                 onValueChanged: backend.setSamplingRate(value)
             }
 
@@ -50,10 +50,10 @@ ApplicationWindow {
             }
             SpinBox {
                 id: cutoffFrequency
-                from: 1
-                to: 30000
+                from: backend.cutoffFrequencyFrom
+                to: backend.cutoffFrequencyTo
                 editable: true
-                value: backend.getCutoffFrequency()
+                value: backend.defaultCutoffFrequency
                 onValueChanged: backend.setCutoffFrequency(value)
             }
 
@@ -93,9 +93,9 @@ ApplicationWindow {
             }
             SpinBox {
                 id: filterSize
-                from: 1
-                to: 10000
-                value: backend.getFilterSize()
+                from: backend.filterSizeFrom
+                to: backend.filterSizeTo
+                value: backend.defaultFilterSize
                 editable: true
                 visible: isFIR()
                 onValueChanged: backend.setFilterSize(value)
@@ -162,20 +162,27 @@ ApplicationWindow {
                 }
             }
 
-            TextArea {
-                id: coefficients
-                text: backend.getSamplingRate()
+            Flickable {
+                id: flickable
                 Layout.minimumHeight: 50
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                background: Rectangle { color: "white" }
 
-                Connections {
-                    target: backend
-                    function onCalculationCompleted() {
-                        coefficients.text = backend.getCoefficientsString();
+                TextArea.flickable: TextArea {
+                    id: coefficients
+                    text: backend.getSamplingRate()
+                    wrapMode: TextEdit.WordWrap
+                    background: Rectangle { color: "white" }
+
+                    Connections {
+                        target: backend
+                        function onCalculationCompleted() {
+                            coefficients.text = backend.getCoefficientsString();
+                        }
                     }
                 }
+
+                ScrollBar.vertical: ScrollBar {}
             }
         }
 

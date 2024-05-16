@@ -1,9 +1,17 @@
 #include "backend.hpp"
+#include "../shared/fir/FIRFilter.hpp"
+#include "../shared/fir/BlackmanWindow.hpp"
+#include "../shared/fir/RectangularWindow.hpp"
+#include "../shared/iir/IIRFilter.hpp"
 #include <QDebug>
 #include <sstream>
 
 Backend::Backend(QObject *parent)
-    : QObject{parent}, samplingRate{48000}, cutoffFrequency{200}, filterSize{200}, coefficients{{1, 2, 3}}
+    : QObject{parent},
+    samplingRate{defaultSamplingRate},
+    cutoffFrequency{defaultCutoffFrequency},
+    filterSize{defaultFilterSize},
+    coefficients{{}}
 {
     QObject::connect(this, &Backend::recalculationNeeded, &Backend::recalculate);
 }
@@ -58,9 +66,10 @@ void Backend::setFilterSize(int value) {
 
 QString Backend::getCoefficientsString() const {
     std::stringstream ss;
-    copy(coefficients.begin(), coefficients.end(), std::ostream_iterator<int>(ss, ","));
+    copy(coefficients.begin(), coefficients.end(), std::ostream_iterator<double>(ss, ", "));
     std::string s = ss.str();
-    if (s.length() > 0) {
+    if (s.length() > 1) {
+        s.pop_back();
         s.pop_back();
     }
     return QString::fromStdString(s);
@@ -68,5 +77,25 @@ QString Backend::getCoefficientsString() const {
 
 void Backend::recalculate() {
     qInfo() << "Re-calculating coefficients\n";
+
+    std::unique_ptr<Filter> filter;
+
+    if (filterType == "FIR") {
+        std::unique_ptr<Window> window;
+        if (windowType == "Blackman") {
+            window = std::unique_ptr<Window>(new BlackmanWindow());
+        } else {
+            window = std::unique_ptr<Window>(new RectangularWindow());
+        }
+
+        filter = std::unique_ptr<Filter>(
+            new FIRFilter(cutoffFrequency, filterSize, *window, samplingRate));
+    } else {
+        RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
+        filter = std::unique_ptr<Filter>(new IIRFilter(rcGrid));
+    }
+
+    coefficients = (*filter).getFilterCoefficients();
+
     emit calculationCompleted();
 }
