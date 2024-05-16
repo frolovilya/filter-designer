@@ -9,10 +9,13 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
+#include <QApplication>
+#include <QQmlApplicationEngine>
+#include "backend.hpp"
 
 using namespace std;
 
-const unordered_map<string, string> argumentsToMap(int argc, char *argv[]) {
+/*const unordered_map<string, string> argumentsToMap(int argc, char *argv[]) {
   auto arguments = unordered_map<string, string>{};
 
   for (int i = 1; i + 1 < argc; i += 2) {
@@ -138,4 +141,22 @@ int main(int argc, char *argv[]) {
   }
 
   return 0;
+}*/
+
+int main(int argc, char *argv[]) {
+    QApplication app(argc, argv);
+
+    qmlRegisterType<Backend>("filter.designer.qmlcomponents", 1, 0, "Backend");
+
+    QQmlApplicationEngine engine;
+    const QUrl url(QStringLiteral("qrc:/ui/Main.qml"));
+    QObject::connect(
+        &engine,
+        &QQmlApplicationEngine::objectCreationFailed,
+        &app,
+        []() { QCoreApplication::exit(-1); },
+        Qt::QueuedConnection);
+    engine.load(url);
+
+    return app.exec();
 }
