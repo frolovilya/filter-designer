@@ -1,13 +1,13 @@
 add_library(filter-designer-shared
-  iir/RCGrid.cpp
-  iir/IIRFilter.cpp
-  SineWave.cpp
-  fir/FIRFilter.cpp
-  fir/Window.cpp
-  fir/RectangularWindow.cpp
-  fir/BlackmanWindow.cpp
-  FFT.cpp
-  Sampling.cpp
+  iir/RCGrid.cpp iir/RCGrid.hpp
+  iir/IIRFilter.cpp iir/IIRFilter.hpp
+  SineWave.cpp SineWave.hpp
+  fir/FIRFilter.cpp fir/FIRFilter.hpp
+  fir/Window.cpp fir/Window.hpp
+  fir/RectangularWindow.cpp fir/RectangularWindow.hpp
+  fir/BlackmanWindow.cpp fir/BlackmanWindow.hpp
+  FFT.cpp FFT.hpp
+  Sampling.cpp Sampling.hpp
 )
 
 find_path(FFTW_HEADER_PATH fftw3.h)

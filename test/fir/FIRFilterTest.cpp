@@ -13,18 +13,28 @@ BOOST_AUTO_TEST_CASE(constructor_test) {
   BOOST_REQUIRE_NO_THROW(FIRFilter(100, 200, BlackmanWindow(), 48000));
 }
 
+void testFrequencyResponse(int cutoffFrequency, int samplingRate, int filterSize) {
+    //cout << "FIR Response cutoff=" << cutoffFrequency
+    //     << ", samplingRate=" << samplingRate
+    //     << ", filterSize=" << filterSize << "\n";
+    FIRFilter filter = FIRFilter(cutoffFrequency, filterSize, BlackmanWindow(), samplingRate);
+
+    auto coefficients = filter.getFilterCoefficients();
+    BOOST_TEST(coefficients.size() == filterSize);
+
+    auto filterResponse = filter.calculateResponseDB(1, samplingRate / 2);
+    const int transitionPeriod = 500;
+    // rought test that attenuation is -10dB at cutoff frequency + transition period
+    BOOST_TEST(filterResponse[cutoffFrequency + transitionPeriod] < -10);
+}
+
 BOOST_AUTO_TEST_CASE(response_test) {
-  const int cutoffFrequencyHz = 500;
-  const int samplingRateHz = 48000;
-  const int filterSize = 200;
-  FIRFilter filter = FIRFilter(cutoffFrequencyHz, filterSize, BlackmanWindow(), samplingRateHz);
-
-  auto coefficients = filter.getFilterCoefficients();
-  BOOST_TEST(coefficients.size() == filterSize);
-
-  auto filterResponse = filter.calculateResponseDB(1, 1000);
-  // rought test that attenuation is -25dB at cutoff frequency
-  BOOST_TEST(filterResponse[cutoffFrequencyHz] < -25);
+  testFrequencyResponse(200, 24000, 200);
+  testFrequencyResponse(500, 48000, 200);
+  testFrequencyResponse(500, 48000, 1000);
+  testFrequencyResponse(1000, 48000, 500);
+  testFrequencyResponse(5000, 48000, 500);
+  testFrequencyResponse(10000, 48000, 500);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

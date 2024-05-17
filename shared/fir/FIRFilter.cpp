@@ -83,7 +83,7 @@ vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
   }
 
   vector<double> paddedCoefficients(filterCoefficients);
-  for (int i = filterCoefficients.size(); i < samplingRateHz / 2; i++) {
+  for (int i = filterCoefficients.size(); i < samplingRateHz; i++) {
     paddedCoefficients.push_back(0);
   }
 

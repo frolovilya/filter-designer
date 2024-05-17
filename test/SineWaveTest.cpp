@@ -12,33 +12,42 @@ BOOST_AUTO_TEST_CASE(constructor_test) {
   BOOST_REQUIRE_NO_THROW(SineWave(10));
 }
 
-BOOST_AUTO_TEST_CASE(generation_test) {
+BOOST_AUTO_TEST_CASE(frequency_less_than_samplingRate_test) {
+  auto generator = SineWave(1000);
+  BOOST_REQUIRE_THROW(generator.generatePeriod(1001, 1), invalid_argument);
+}
 
-  const double amplitude = 1;
-  const int waveFrequencyHz = 100;
-  const int samplingRateHz = 20000;
+void testWaveGeneration(int waveFrequency, int samplingRate, double amplitude) {
+    auto generator = SineWave(samplingRate);
+    auto wave = generator.generatePeriod(waveFrequency, amplitude);
 
-  auto generator = SineWave(samplingRateHz);
-  auto wave = generator.generatePeriod(waveFrequencyHz, amplitude);
+    BOOST_TEST(wave.size() == ceil(samplingRate / (double) waveFrequency));
 
-  BOOST_TEST(wave.size() == samplingRateHz / waveFrequencyHz);
+    const double tolerance = 0.1;
+    double max = *max_element(wave.begin(), wave.end());
+    BOOST_TEST(abs(amplitude - abs(max)) < tolerance);
 
-  double max = *max_element(wave.begin(), wave.end());
-  BOOST_TEST(max == amplitude);
+    double min = *min_element(wave.begin(), wave.end());
+    BOOST_TEST(abs(amplitude - abs(min)) < tolerance);
 
-  double min = *min_element(wave.begin(), wave.end());
-  BOOST_TEST(min == -amplitude);
-
-  auto fftResult = fftDirect(toComplexVector(wave));
-  int dominantFrequency = 1;
-  // skip DC offset bin 0
-  for (unsigned int i = 1; i < fftResult.size() / 2; i++) {
-    if (abs(fftResult[i]) > abs(fftResult[dominantFrequency])) {
-      dominantFrequency = i;
+    auto fftResult = fftDirect(toComplexVector(wave));
+    int dominantFrequency = 1;
+    // skip DC offset bin 0
+    for (unsigned int i = 1; i < fftResult.size() / 2; i++) {
+        if (abs(fftResult[i]) > abs(fftResult[dominantFrequency])) {
+            dominantFrequency = i;
+        }
     }
-  }
-  // wave buffer contains one period samples
-  BOOST_TEST(dominantFrequency == 1);
+    // wave buffer contains one period samples
+    BOOST_TEST(dominantFrequency == 1);
+}
+
+BOOST_AUTO_TEST_CASE(generation_test) {
+  testWaveGeneration(10, 1000, 1);
+  testWaveGeneration(440, 10000, 1);
+  testWaveGeneration(800, 20000, 1);
+  testWaveGeneration(10000, 48000, 1);
+  testWaveGeneration(21000, 100000, 1);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

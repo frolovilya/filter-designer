@@ -27,13 +27,17 @@ vector<double> IIRFilter::calculateResponseDB(int fromFrequencyHz,
     throw invalid_argument(
         "calculateResponseDb: toFrequencyHz must be > fromFrequencyHz");
   }
+  if (toFrequencyHz > nyquistFrequency(rcGrid.getSamplingRate())) {
+      throw invalid_argument(
+          "calculateResponseDb: toFrequencyHz must be < samplingRate / 2 (Nyquist frequency)");
+  }
 
   vector<double> frequencyResponse;
   auto sine = SineWave(rcGrid.getSamplingRate());
   for (int frequency = fromFrequencyHz; frequency < toFrequencyHz;
        frequency++) {
     auto samples = sine.generatePeriod(frequency, 1);
-    auto filteredSamples = apply(samples);
+    auto filteredSamples = apply(std::move(samples));
 
     frequencyResponse.push_back(toDB(maxAbsValue(filteredSamples)));
   }
