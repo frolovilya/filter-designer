@@ -33,14 +33,14 @@ ApplicationWindow {
         return Qt.createQmlObject("import QtQuick; import QtCharts; LineSeries {
             XYPoint { x: " + from + "; y: " + y + "}
             XYPoint { x: " + to + "; y: " + y + "}
-        }", passBand);
+            }", passBand)
     }
 
     function createLineSeriesLower(from, to, y) {
         return Qt.createQmlObject("import QtQuick; import QtCharts; LineSeries {
             XYPoint { x: " + from + "; y: " + y + "}
             XYPoint { x: " + to + "; y: " + y + "}
-        }", passBand);
+            }", passBand)
     }
 
     Backend {
@@ -114,7 +114,6 @@ ApplicationWindow {
                 visible: isFIR()
                 onCurrentValueChanged: backend.setWindowType(currentValue)
             }
-
 
             Label {
                 text: qsTr("Filter Size")
@@ -201,14 +200,15 @@ ApplicationWindow {
                             magnitudeAxisY.min = backend.getFrequencyResponseMinValue()
                             magnitudeAxisY.max = backend.getFrequencyResponseMaxValue()
 
-                            passBand.upperSeries = createLineSeriesUpper(0,
-                                                                         backend.getCutoffFrequency(),
-                                                                         backend.getFrequencyResponseMaxValue())
-                            passBand.lowerSeries = createLineSeriesLower(0,
-                                                                         backend.getCutoffFrequency(),
-                                                                         backend.getFrequencyResponseMinValue())
+                            passBand.upperSeries = createLineSeriesUpper(
+                                        0, backend.getCutoffFrequency(),
+                                        backend.getFrequencyResponseMaxValue())
+                            passBand.lowerSeries = createLineSeriesLower(
+                                        0, backend.getCutoffFrequency(),
+                                        backend.getFrequencyResponseMinValue())
 
-                            backend.updateFrequencyResponse(frequencyResponseSeries)
+                            backend.updateFrequencyResponse(
+                                        frequencyResponseSeries)
                         }
                     }
                 }
@@ -282,14 +282,16 @@ ApplicationWindow {
                     TextArea.flickable: TextArea {
                         id: coefficients
                         wrapMode: TextEdit.WordWrap
-                        background: Rectangle { color: "black" }
+                        background: Rectangle {
+                            color: "black"
+                        }
 
                         color: "dimgray"
 
                         Connections {
                             target: backend
                             function onCalculationCompleted() {
-                                coefficients.text = backend.getCoefficientsString();
+                                coefficients.text = backend.getCoefficientsString()
                             }
                         }
                     }
@@ -309,11 +311,8 @@ ApplicationWindow {
                         coefficients.selectAll()
                         coefficients.copy()
                     }
-
                 }
-
             }
         }
-
     }
 }

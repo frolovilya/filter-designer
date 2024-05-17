@@ -9,7 +9,7 @@ qt_add_executable(filter-designer
 
 qt_add_resources(filter-designer "assets"
     PREFIX "/icons"
-    FILES "clipboard.png"
+    FILES "qt/clipboard.png"
 )
 
 qt_add_qml_module(filter-designer
@@ -17,7 +17,7 @@ qt_add_qml_module(filter-designer
     VERSION 1.0
     NO_RESOURCE_TARGET_PATH
     QML_FILES
-        Main.qml
+        qt/Main.qml
         SOURCES backend.hpp backend.cpp
 )
 

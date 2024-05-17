@@ -8,6 +8,7 @@ add_library(filter-designer-shared
   fir/BlackmanWindow.cpp fir/BlackmanWindow.hpp
   FFT.cpp FFT.hpp
   Sampling.cpp Sampling.hpp
+  Filter.hpp
 )
 
 find_path(FFTW_HEADER_PATH fftw3.h)

@@ -4,6 +4,9 @@
 
 using namespace std;
 
+/**
+ * Infinite Impulse Response filter
+ */
 IIRFilter::IIRFilter(const RCGrid &rcGrid) : rcGrid{rcGrid} {}
 
 int IIRFilter::getCutoffFrequency() const {
@@ -12,14 +15,30 @@ int IIRFilter::getCutoffFrequency() const {
 
 int IIRFilter::getSamplingRate() const { return rcGrid.getSamplingRate(); }
 
+/**
+ * Given:
+ * Vout[n] = A * Vin[n] + B * Vout[n-1]
+ *
+ * Then A and B are filter coefficients
+ *
+ * @return IIR filter coefficients
+ */
 vector<double> IIRFilter::getFilterCoefficients() const {
   IIRFilterCoefficients coefficients = rcGrid.getIIRFilterCoefficients();
   vector<double> result{coefficients.a, coefficients.b};
   return result;
-};
+}
 
-vector<double> IIRFilter::calculateResponseDB(int fromFrequencyHz,
-                                              int toFrequencyHz) const {
+/**
+ * Calculate IIR filter frequency response
+ *
+ * @param fromFrequencyHz start frequency
+ * @param toFrequencyHz end frequency
+ * @return magnitudes (dB) for each frequency from fromFrequencyHz (index 0) to
+ * toFrequencyHz
+ */
+vector<double> IIRFilter::calculateResponseDB(const int fromFrequencyHz,
+                                              const int toFrequencyHz) const {
   if (fromFrequencyHz < 1) {
     throw invalid_argument("calculateResponseDb: fromFrequencyHz must be >= 1");
   }
@@ -28,8 +47,8 @@ vector<double> IIRFilter::calculateResponseDB(int fromFrequencyHz,
         "calculateResponseDb: toFrequencyHz must be > fromFrequencyHz");
   }
   if (toFrequencyHz > nyquistFrequency(rcGrid.getSamplingRate())) {
-      throw invalid_argument(
-          "calculateResponseDb: toFrequencyHz must be < samplingRate / 2 (Nyquist frequency)");
+    throw invalid_argument("calculateResponseDb: toFrequencyHz must be < "
+                           "samplingRate / 2 (Nyquist frequency)");
   }
 
   vector<double> frequencyResponse;
@@ -45,6 +64,12 @@ vector<double> IIRFilter::calculateResponseDB(int fromFrequencyHz,
   return frequencyResponse;
 }
 
+/**
+ * Apply filter to a sample buffer
+ *
+ * @param samples input buffer
+ * @return filtered samples
+ */
 vector<double> IIRFilter::apply(const vector<double> &samples) const {
   double vOutFeedback = 0;
 

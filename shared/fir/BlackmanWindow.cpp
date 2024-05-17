@@ -4,6 +4,13 @@
 
 using namespace std;
 
+/**
+ * Blackman window.
+ * Expected attenuation -74dB.
+ *
+ * @param windowSize
+ * @return blackman window multipliers
+ */
 vector<double> BlackmanWindow::getCoefficients(const int windowSize) const {
   if (windowSize < 1) {
     throw invalid_argument("getCoefficients: windowSize must be >= 1");

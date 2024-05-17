@@ -4,6 +4,15 @@
 
 using namespace std;
 
+/**
+ * Simulator analog RC grid to implement a low pass filter
+ *
+ *  Vin --R--+-- Vout
+ *           |
+ *           C
+ *           |
+ *           g
+ */
 RCGrid::RCGrid(const int cutoffFrequencyHz, const int samplingRateHz)
     : cutoffFrequencyHz{cutoffFrequencyHz}, samplingRateHz{samplingRateHz},
       coefficients{
@@ -24,6 +33,13 @@ IIRFilterCoefficients RCGrid::getIIRFilterCoefficients() const {
   return coefficients;
 }
 
+/**
+ * Calculate RC constant to be used for IIR coefficients calculation
+ *
+ * @param frequencyHz desired cutoff frequency (must be >= 1) to achieve -3dB
+ * attenuation
+ * @return calculated RC constant
+ */
 double RCGrid::calculateRCConstant(const int frequencyHz) const {
   if (frequencyHz < 1) {
     throw invalid_argument("calculateRCConstant: frequencyHz must be >= 1");
@@ -35,6 +51,13 @@ double RCGrid::calculateRCConstant(const int frequencyHz) const {
   return 1 / (2 * M_PI * frequencyHz);
 }
 
+/**
+ * Calcuate IIR filter coefficients
+ *
+ * @param cutoffFrequencyHz cutoffFrequency (must be >= 1)
+ * @param samplingRateHz
+ * @return IIR filter coefficients
+ */
 IIRFilterCoefficients
 RCGrid::calculateIIRFilterCoefficients(const int cutoffFrequencyHz,
                                        const int samplingRateHz) const {

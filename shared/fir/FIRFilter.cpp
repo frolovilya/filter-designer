@@ -7,6 +7,9 @@
 
 using namespace std;
 
+/**
+ * Finite Impulse Response filter
+ */
 FIRFilter::FIRFilter(int cutoffFrequencyHz, int coefficientsCount,
                      const Window &window, int samplingRateHz)
     : cutoffFrequencyHz{cutoffFrequencyHz}, window{window},
@@ -32,6 +35,8 @@ vector<double> FIRFilter::getFilterCoefficients() const {
 /**
  * Ideal low pass filter frequency response with 1 gain for pass band and 0 for
  * stop band
+ *
+ * @return ideal response magnitudes
  */
 vector<double> FIRFilter::generateIdealFrequencyResponse() const {
   const int frequencyRangeHz{nyquistFrequency(samplingRateHz)};
@@ -48,7 +53,11 @@ vector<double> FIRFilter::generateIdealFrequencyResponse() const {
 }
 
 /**
- * Calculate filter coefficients for the given theoretical frequency response
+ * Calculate filter coefficients for the given theoretical frequency response.
+ * Coefficients must be convolved with an input sample buffer.
+ *
+ * @param coefficientsCount target number of coefficients
+ * @return filter coefficients with applied window
  */
 vector<double>
 FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
@@ -72,6 +81,14 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
   return normalize(window.apply(coefficients));
 }
 
+/**
+ * Calculate FIR filter frequency response
+ *
+ * @param fromFrequencyHz start frequency
+ * @param toFrequencyHz end frequency
+ * @return magnitudes (dB) for each frequency from fromFrequencyHz (index 0) to
+ * toFrequencyHz
+ */
 vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
                                               int toFrequencyHz) const {
   if (fromFrequencyHz < 1) {
@@ -98,4 +115,16 @@ vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
   }
 
   return frequencyResponse;
+}
+
+/**
+ * Fred Harris "rule of thumb" formula to get transition length
+ * to achieve a desired attenuation
+ *
+ * @param attenuationDB desired filter attenuation in dB
+ * @return frequencies transition length
+ */
+int FIRFilter::getTransitionLength(double attenuationDB) const {
+  return ceil(attenuationDB * nyquistFrequency(samplingRateHz) /
+              (22 * filterCoefficients.size()));
 }

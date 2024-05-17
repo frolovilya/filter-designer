@@ -15,6 +15,7 @@ public:
   std::vector<double> getFilterCoefficients() const override;
   std::vector<double> calculateResponseDB(int fromFrequencyHz,
                                           int toFrequencyHz) const override;
+  int getTransitionLength(double attenuationDB) const;
 
 private:
   const int cutoffFrequencyHz;

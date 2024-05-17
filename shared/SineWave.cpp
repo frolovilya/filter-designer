@@ -1,4 +1,5 @@
 #include "SineWave.hpp"
+#include "Sampling.hpp"
 #include <cmath>
 #include <stdexcept>
 
@@ -10,20 +11,33 @@ SineWave::SineWave(const int samplingRateHz) : samplingRateHz{samplingRateHz} {
   }
 }
 
+/**
+ * Calculate how many samples will a single-period sine wave with a given frequency
+ * take with a given sampling rate
+ *
+ * @param frequency target wave frequency (must be >= 1 and <= Nyquist frequency)
+ * @return number of samples to represent one period
+ */
 int SineWave::calculatePeriodSamplesCount(const int frequency) const {
   if (frequency < 1) {
     throw invalid_argument(
         "calculatePeriodSamplesCount: frequency must be >= 1");
   }
-  if (frequency > samplingRateHz) {
+  if (frequency > nyquistFrequency(samplingRateHz)) {
       throw invalid_argument(
-          "calculatePeriodSamplesCount: frequency must be < samplingRate");
+          "calculatePeriodSamplesCount: frequency must be < samplingRate / 2 (Nyquist frequency)");
   }
-  // wave with a given frequency has a period T which takes this amount samples
-  // per second
+
   return ceil(samplingRateHz / (double) frequency);
 }
 
+/**
+ * Generate one period of a sine wave
+ *
+ * @param frequency target wave frequency (must be >= 1)
+ * @param amplitude max wave amplitude (must be > 0)
+ * @return sine wave one period sample buffer
+ */
 vector<double> SineWave::generatePeriod(const int frequency,
                                         const double amplitude) const {
   if (frequency < 1) {

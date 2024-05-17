@@ -4,6 +4,13 @@
 
 using namespace std;
 
+/**
+ * Perform direct or inverse Fast Fourier Transform on a given sample data
+ *
+ * @param samples buffer to perform FFT on
+ * @param inverse inverse or direct FFT
+ * @return complex FFT result
+ */
 vector<complex<double>> fft(const vector<complex<double>> &samples,
                             bool inverse) {
   fftw_complex *in, *out;
@@ -41,6 +48,12 @@ vector<complex<double>> fftInverse(const vector<complex<double>> &samples) {
   return fft(samples, true);
 }
 
+/**
+ * Convert real samples to complex vector
+ *
+ * @param samples real sample value
+ * @return complex(real, 0) samples
+ */
 vector<std::complex<double>> toComplexVector(const vector<double> &samples) {
   vector<complex<double>> result;
   for (const double &sample : samples) {

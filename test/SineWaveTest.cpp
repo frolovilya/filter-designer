@@ -12,9 +12,11 @@ BOOST_AUTO_TEST_CASE(constructor_test) {
   BOOST_REQUIRE_NO_THROW(SineWave(10));
 }
 
-BOOST_AUTO_TEST_CASE(frequency_less_than_samplingRate_test) {
-  auto generator = SineWave(1000);
-  BOOST_REQUIRE_THROW(generator.generatePeriod(1001, 1), invalid_argument);
+BOOST_AUTO_TEST_CASE(frequency_less_than_nyquist_test) {
+  const int samplingRate = 1000;
+  const int frequency = 501;
+  auto generator = SineWave(samplingRate);
+  BOOST_REQUIRE_THROW(generator.generatePeriod(frequency, 1), invalid_argument);
 }
 
 void testWaveGeneration(int waveFrequency, int samplingRate, double amplitude) {

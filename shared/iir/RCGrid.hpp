@@ -3,13 +3,6 @@
 
 #include "IIRFilterCoefficients.hpp"
 
-/**
- *  Vin --R--+-- Vout
- *           |
- *           C
- *           |
- *           g
- */
 class RCGrid {
 public:
   RCGrid(int cutoffFrequencyHz, int samplingRateHz);
