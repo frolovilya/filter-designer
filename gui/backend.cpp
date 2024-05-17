@@ -15,8 +15,10 @@
 
 Backend::Backend(QObject *parent)
     : QObject{parent}, samplingRate{defaultSamplingRate},
-      cutoffFrequency{defaultCutoffFrequency}, filterSize{defaultFilterSize},
-      coefficients{{}} {
+      cutoffFrequency{defaultCutoffFrequency},
+      attenuationDB{defaultAttenuationDB},
+      transitionLength{defaultTransitionLength}, filterSize{defaultFilterSize},
+      useOptimalFilterSize{true}, coefficients{{}} {
   QObject::connect(this, &Backend::recalculationNeeded, &Backend::recalculate);
 }
 
@@ -68,6 +70,41 @@ void Backend::setWindowType(QString value) {
   emit recalculationNeeded();
 }
 
+int Backend::getAttenuationDB() const { return attenuationDB; }
+int Backend::getAttenuationDBRangeFrom() const {
+  return defaultAttenuationDBRangeFrom;
+}
+int Backend::getAttenuationDBRangeTo() const {
+  return defaultAttenuationDBRangeTo;
+}
+void Backend::setAttenuationDB(int value) {
+  attenuationDB = value;
+
+  if (useOptimalFilterSize) {
+    setFilterSize(FIRFilter::getOptimalCoefficientsCount(
+        samplingRate, attenuationDB, transitionLength));
+  } else {
+    setTransitionLength(FIRFilter::getTransitionLength(
+        samplingRate, attenuationDB, filterSize));
+  }
+}
+
+int Backend::getTransitionLength() const { return transitionLength; }
+int Backend::getTransitionLengthRangeFrom() const {
+  return defaultTransitionLengthRangeFrom;
+}
+int Backend::getTransitionLengthRangeTo() const {
+  return defaultTransitionLengthRangeTo;
+}
+void Backend::setTransitionLength(int value) {
+  transitionLength = value;
+
+  if (useOptimalFilterSize) {
+    setFilterSize(FIRFilter::getOptimalCoefficientsCount(
+        samplingRate, attenuationDB, transitionLength));
+  }
+}
+
 int Backend::getFilterSize() const { return filterSize; }
 int Backend::getFilterSizeRangeFrom() const {
   return defaultFilterSizeRangeFrom;
@@ -75,7 +112,17 @@ int Backend::getFilterSizeRangeFrom() const {
 int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRangeTo; }
 void Backend::setFilterSize(int value) {
   filterSize = value;
+
+  if (!useOptimalFilterSize) {
+    setTransitionLength(FIRFilter::getTransitionLength(
+        samplingRate, attenuationDB, filterSize));
+  }
+
   emit recalculationNeeded();
+}
+bool Backend::isUseOptimalFilterSize() const { return useOptimalFilterSize; }
+void Backend::setUseOptimalFilterSize(bool value) {
+  useOptimalFilterSize = value;
 }
 
 QString Backend::getCoefficientsString() const {

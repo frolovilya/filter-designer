@@ -15,6 +15,7 @@ ApplicationWindow {
     palette.base: "black"
     palette.button: "black"
     palette.text: "white"
+    palette.disabled.text: "dimgray"
     palette.buttonText: "white"
     palette.highlight: "darkorange"
 
@@ -29,18 +30,11 @@ ApplicationWindow {
         return filterType.currentValue === "FIR"
     }
 
-    function createLineSeriesUpper(from, to, y) {
+    function createBandLineSeries(from, to, y, parentObject) {
         return Qt.createQmlObject("import QtQuick; import QtCharts; LineSeries {
             XYPoint { x: " + from + "; y: " + y + "}
             XYPoint { x: " + to + "; y: " + y + "}
-            }", passBand)
-    }
-
-    function createLineSeriesLower(from, to, y) {
-        return Qt.createQmlObject("import QtQuick; import QtCharts; LineSeries {
-            XYPoint { x: " + from + "; y: " + y + "}
-            XYPoint { x: " + to + "; y: " + y + "}
-            }", passBand)
+            }", parentObject)
     }
 
     Backend {
@@ -63,9 +57,9 @@ ApplicationWindow {
             SpinBox {
                 id: samplingRate
                 Layout.fillWidth: true
+                editable: true
                 from: backend.getSamplingRateRangeFrom()
                 to: backend.getSamplingRateRangeTo()
-                editable: true
                 value: backend.getSamplingRate()
                 onValueChanged: backend.setSamplingRate(value)
             }
@@ -116,22 +110,78 @@ ApplicationWindow {
             }
 
             Label {
+                text: qsTr("Attenuation (dB)")
+                visible: isFIR()
+            }
+            RowLayout {
+                visible: isFIR()
+                Layout.fillWidth: true
+
+                TextField {
+                    id: attenuationDBText
+                    text: attenuationDBSlider.value
+                    Layout.minimumWidth: 25
+                    Layout.maximumWidth: 25
+                    readOnly: true
+                }
+
+                Slider {
+                    id: attenuationDBSlider
+                    stepSize: 1
+                    live: false
+                    Layout.fillWidth: true
+                    from: backend.getAttenuationDBRangeFrom()
+                    to: backend.getAttenuationDBRangeTo()
+                    value: backend.getAttenuationDB()
+                    onValueChanged: backend.setAttenuationDB(value)
+                }
+            }
+
+            Label {
+                text: qsTr("Transition Length")
+                visible: isFIR()
+            }
+            SpinBox {
+                id: transitionLength
+                enabled: useOptimalFilterSize.checked
+                visible: isFIR()
+                Layout.fillWidth: true
+                editable: true
+                from: backend.getTransitionLengthRangeFrom()
+                to: backend.getTransitionLengthRangeTo()
+                value: backend.getTransitionLength()
+                onValueChanged: backend.setTransitionLength(value)
+            }
+
+            CheckBox {
+                id: useOptimalFilterSize
+                text: qsTr("Optimal Filter Size")
+                visible: isFIR()
+                Layout.fillWidth: true
+                leftPadding: 0
+                checked: backend.isUseOptimalFilterSize()
+                onCheckedChanged: backend.setUseOptimalFilterSize(checked)
+            }
+
+            Label {
                 text: qsTr("Filter Size")
                 visible: isFIR()
             }
             SpinBox {
                 id: filterSize
+                enabled: !useOptimalFilterSize.checked
                 Layout.fillWidth: true
+                editable: true
+                visible: isFIR()
                 from: backend.getFilterSizeRangeFrom()
                 to: backend.getFilterSizeRangeTo()
                 value: backend.getFilterSize()
-                editable: true
-                visible: isFIR()
                 onValueChanged: backend.setFilterSize(value)
             }
 
             Item {
                 Layout.fillHeight: true
+                Layout.minimumHeight: 50
             }
 
             Connections {
@@ -142,6 +192,9 @@ ApplicationWindow {
 
                     cutoffFrequency.from = backend.getCutoffFrequencyRangeFrom()
                     cutoffFrequency.to = backend.getCutoffFrequencyRangeTo()
+
+                    filterSize.value = backend.getFilterSize()
+                    transitionLength.value = backend.getTransitionLength()
                 }
             }
         }
@@ -155,7 +208,7 @@ ApplicationWindow {
                     id: frequencyResponse
                     title: "Frequency Response"
                     Layout.minimumWidth: 500
-                    Layout.minimumHeight: 300
+                    Layout.minimumHeight: 370
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     Layout.margins: -margin
@@ -192,7 +245,15 @@ ApplicationWindow {
                         id: passBand
                         axisX: frequencyAxisX
                         axisY: magnitudeAxisY
-                        color: "#00190d"
+                        color: "#2b4f3e"
+                        borderWidth: 0
+                    }
+
+                    AreaSeries {
+                        id: transitionBand
+                        axisX: frequencyAxisX
+                        axisY: magnitudeAxisY
+                        color: "#ab914e"
                         borderWidth: 0
                     }
 
@@ -211,12 +272,25 @@ ApplicationWindow {
                             magnitudeAxisY.min = backend.getFrequencyResponseMinValue()
                             magnitudeAxisY.max = backend.getFrequencyResponseMaxValue()
 
-                            passBand.upperSeries = createLineSeriesUpper(
+                            passBand.upperSeries = createBandLineSeries(
                                         0, backend.getCutoffFrequency(),
-                                        backend.getFrequencyResponseMaxValue())
-                            passBand.lowerSeries = createLineSeriesLower(
+                                        backend.getFrequencyResponseMaxValue(),
+                                        passBand)
+                            passBand.lowerSeries = createBandLineSeries(
                                         0, backend.getCutoffFrequency(),
-                                        backend.getFrequencyResponseMinValue())
+                                        backend.getFrequencyResponseMinValue(),
+                                        passBand)
+
+                            transitionBand.upperSeries = createBandLineSeries(
+                                        backend.getCutoffFrequency(),
+                                        backend.getTransitionLength() + backend.getCutoffFrequency(),
+                                        backend.getFrequencyResponseMaxValue(),
+                                        transitionBand)
+                            transitionBand.lowerSeries = createBandLineSeries(
+                                        backend.getCutoffFrequency(),
+                                        backend.getTransitionLength() + backend.getCutoffFrequency(),
+                                        backend.getFrequencyResponseMinValue(),
+                                        transitionBand)
 
                             backend.updateFrequencyResponse(
                                         frequencyResponseSeries)
@@ -228,7 +302,7 @@ ApplicationWindow {
                     id: filterCoefficients
                     title: "Filter Coefficients"
                     Layout.minimumWidth: 300
-                    Layout.minimumHeight: 300
+                    Layout.minimumHeight: 370
                     Layout.fillHeight: true
                     Layout.fillWidth: true
                     Layout.margins: -margin

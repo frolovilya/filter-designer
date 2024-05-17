@@ -118,13 +118,29 @@ vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
 }
 
 /**
- * Fred Harris "rule of thumb" formula to get transition length
+ * Get transition length using Fred Harris "rule of thumb" formula
  * to achieve a desired attenuation
  *
  * @param attenuationDB desired filter attenuation in dB
  * @return frequencies transition length
  */
-int FIRFilter::getTransitionLength(double attenuationDB) const {
-  return ceil(attenuationDB * nyquistFrequency(samplingRateHz) /
-              (22 * filterCoefficients.size()));
+int FIRFilter::getTransitionLength(int samplingRate,
+                                   double attenuationDB,
+                                   int coefficientsCount) {
+  return ceil(attenuationDB * nyquistFrequency(samplingRate) /
+              (22 * coefficientsCount));
+}
+
+/**
+ * Get optimal coefficients countusing Fred Harris "rule of thumb" formula
+ * to achieve a desired attenuation
+ *
+ * @param attenuationDB desired filter attenuation in dB
+ * @return frequencies transition length
+ */
+int FIRFilter::getOptimalCoefficientsCount(int samplingRate,
+                                           double attenuationDB,
+                                           int transitionLength) {
+  return ceil(attenuationDB * nyquistFrequency(samplingRate) /
+              (22 * transitionLength));
 }

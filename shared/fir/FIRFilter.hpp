@@ -12,10 +12,15 @@ public:
 
   int getCutoffFrequency() const override;
   int getSamplingRate() const override;
+
   std::vector<double> getFilterCoefficients() const override;
   std::vector<double> calculateResponseDB(int fromFrequencyHz,
                                           int toFrequencyHz) const override;
-  int getTransitionLength(double attenuationDB) const;
+
+  static int getOptimalCoefficientsCount(int samplingRate, double attenuationDB,
+                                         int transitionLength);
+  static int getTransitionLength(int samplingRate, double attenuationDB,
+                                 int coefficientsCount);
 
 private:
   const int cutoffFrequencyHz;
