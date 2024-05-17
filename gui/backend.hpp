@@ -26,7 +26,7 @@ public:
     Q_PROPERTY(int cutoffFrequencyFrom MEMBER cutoffFrequencyFrom CONSTANT)
     const int cutoffFrequencyFrom = 1;
     Q_PROPERTY(int cutoffFrequencyTo MEMBER cutoffFrequencyTo CONSTANT)
-    const int cutoffFrequencyTo = 100000;
+    const int cutoffFrequencyTo = 40000;
     Q_PROPERTY(int defaultCutoffFrequency MEMBER defaultCutoffFrequency CONSTANT)
     const int defaultCutoffFrequency = 200;
 

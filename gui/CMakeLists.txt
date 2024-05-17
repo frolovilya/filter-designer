@@ -7,6 +7,11 @@ qt_add_executable(filter-designer
     main.cpp
 )
 
+qt_add_resources(filter-designer "assets"
+    PREFIX "/icons"
+    FILES "clipboard.png"
+)
+
 qt_add_qml_module(filter-designer
     URI QT
     VERSION 1.0

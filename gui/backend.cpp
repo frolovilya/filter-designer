@@ -123,7 +123,8 @@ void Backend::recalculate() {
     }
 
     coefficients = filter->getFilterCoefficients();
-    frequencyResponse = filter->calculateResponseDB(1, 1000);
+    frequencyResponse = filter->calculateResponseDB(1,
+        std::max(std::min(cutoffFrequencyTo, cutoffFrequency * 4), 1000));
 
     emit calculationCompleted();
 }

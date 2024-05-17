@@ -29,6 +29,20 @@ ApplicationWindow {
         return filterType.currentValue === "FIR"
     }
 
+    function createLineSeriesUpper(from, to, y) {
+        return Qt.createQmlObject("import QtQuick; import QtCharts; LineSeries {
+            XYPoint { x: " + from + "; y: " + y + "}
+            XYPoint { x: " + to + "; y: " + y + "}
+        }", passBand);
+    }
+
+    function createLineSeriesLower(from, to, y) {
+        return Qt.createQmlObject("import QtQuick; import QtCharts; LineSeries {
+            XYPoint { x: " + from + "; y: " + y + "}
+            XYPoint { x: " + to + "; y: " + y + "}
+        }", passBand);
+    }
+
     Backend {
         id: backend
     }
@@ -40,12 +54,15 @@ ApplicationWindow {
 
         ColumnLayout {
             id: leftLayout
+            Layout.minimumWidth: 170
+            Layout.preferredWidth: 170
 
             Label {
                 text: qsTr("Sampling Rate")
             }
             SpinBox {
                 id: samplingRate
+                Layout.fillWidth: true
                 from: backend.samplingRateFrom
                 to: backend.samplingRateTo
                 editable: true
@@ -58,6 +75,7 @@ ApplicationWindow {
             }
             SpinBox {
                 id: cutoffFrequency
+                Layout.fillWidth: true
                 from: backend.cutoffFrequencyFrom
                 to: backend.cutoffFrequencyTo
                 editable: true
@@ -70,6 +88,7 @@ ApplicationWindow {
             }
             ComboBox {
                 id: passType
+                Layout.fillWidth: true
                 model: ["Low Pass"]
                 onCurrentValueChanged: backend.setPassType(currentValue)
             }
@@ -79,6 +98,7 @@ ApplicationWindow {
             }
             ComboBox {
                 id: filterType
+                Layout.fillWidth: true
                 model: ["FIR", "IIR"]
                 onCurrentValueChanged: backend.setFilterType(currentValue)
             }
@@ -89,6 +109,7 @@ ApplicationWindow {
             }
             ComboBox {
                 id: windowType
+                Layout.fillWidth: true
                 model: ["Blackman", "Rectangular"]
                 visible: isFIR()
                 onCurrentValueChanged: backend.setWindowType(currentValue)
@@ -101,6 +122,7 @@ ApplicationWindow {
             }
             SpinBox {
                 id: filterSize
+                Layout.fillWidth: true
                 from: backend.filterSizeFrom
                 to: backend.filterSizeTo
                 value: backend.defaultFilterSize
@@ -126,6 +148,7 @@ ApplicationWindow {
                     Layout.minimumHeight: 300
                     Layout.fillHeight: true
                     Layout.fillWidth: true
+                    Layout.margins: -margin
                     legend.visible: false
                     antialiasing: true
                     backgroundRoundness: 0
@@ -135,7 +158,6 @@ ApplicationWindow {
                     margins.right: 0
                     margins.top: 0
                     margins.bottom: 0
-                    Layout.margins: -margin
 
                     ValuesAxis {
                         id: frequencyAxisX
@@ -156,11 +178,19 @@ ApplicationWindow {
                         labelsColor: "dimgray"
                     }
 
+                    AreaSeries {
+                        id: passBand
+                        axisX: frequencyAxisX
+                        axisY: magnitudeAxisY
+                        color: "#00190d"
+                        borderWidth: 0
+                    }
+
                     LineSeries {
                         id: frequencyResponseSeries
                         axisX: frequencyAxisX
                         axisY: magnitudeAxisY
-                        color: "springgreen"
+                        color: "mediumspringgreen"
                         width: 2
                     }
 
@@ -170,6 +200,14 @@ ApplicationWindow {
                             frequencyAxisX.max = backend.getFrequencyResponseBinsCount()
                             magnitudeAxisY.min = backend.getFrequencyResponseMinValue()
                             magnitudeAxisY.max = backend.getFrequencyResponseMaxValue()
+
+                            passBand.upperSeries = createLineSeriesUpper(0,
+                                                                         backend.getCutoffFrequency(),
+                                                                         backend.getFrequencyResponseMaxValue())
+                            passBand.lowerSeries = createLineSeriesLower(0,
+                                                                         backend.getCutoffFrequency(),
+                                                                         backend.getFrequencyResponseMinValue())
+
                             backend.updateFrequencyResponse(frequencyResponseSeries)
                         }
                     }
@@ -182,6 +220,7 @@ ApplicationWindow {
                     Layout.minimumHeight: 300
                     Layout.fillHeight: true
                     Layout.fillWidth: true
+                    Layout.margins: -margin
                     legend.visible: false
                     antialiasing: true
                     backgroundRoundness: 0
@@ -191,7 +230,6 @@ ApplicationWindow {
                     margins.right: 0
                     margins.top: 0
                     margins.bottom: 0
-                    Layout.margins: -margin
                     visible: isFIR()
 
                     ValuesAxis {
@@ -233,28 +271,47 @@ ApplicationWindow {
                 }
             }
 
-            Flickable {
-                id: flickable
-                Layout.minimumHeight: 50
-                Layout.fillHeight: true
-                Layout.fillWidth: true
+            RowLayout {
 
-                TextArea.flickable: TextArea {
-                    id: coefficients
-                    wrapMode: TextEdit.WordWrap
-                    background: Rectangle { color: "black" }
+                Flickable {
+                    id: flickable
+                    Layout.minimumHeight: 50
+                    Layout.fillHeight: true
+                    Layout.fillWidth: true
 
-                    color: "dimgray"
+                    TextArea.flickable: TextArea {
+                        id: coefficients
+                        wrapMode: TextEdit.WordWrap
+                        background: Rectangle { color: "black" }
 
-                    Connections {
-                        target: backend
-                        function onCalculationCompleted() {
-                            coefficients.text = backend.getCoefficientsString();
+                        color: "dimgray"
+
+                        Connections {
+                            target: backend
+                            function onCalculationCompleted() {
+                                coefficients.text = backend.getCoefficientsString();
+                            }
                         }
                     }
+
+                    ScrollBar.vertical: ScrollBar {}
                 }
 
-                ScrollBar.vertical: ScrollBar {}
+                Button {
+                    id: copyCoefficientsToClipboard
+                    Layout.preferredWidth: 50
+                    Layout.preferredHeight: 50
+                    Layout.fillHeight: true
+                    icon.source: "icons/clipboard.png"
+                    icon.color: "white"
+                    palette.button: "dimgray"
+                    onClicked: {
+                        coefficients.selectAll()
+                        coefficients.copy()
+                    }
+
+                }
+
             }
         }
 
