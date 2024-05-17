@@ -31,6 +31,7 @@ int Backend::getSamplingRateRangeTo() const {
 }
 void Backend::setSamplingRate(int value) {
   samplingRate = value;
+  emit controlsStateChanged();
   emit recalculationNeeded();
 }
 
@@ -43,6 +44,7 @@ int Backend::getCutoffFrequencyRangeTo() const {
 }
 void Backend::setCutoffFrequency(int value) {
   cutoffFrequency = value;
+  emit controlsStateChanged();
   emit recalculationNeeded();
 }
 
@@ -51,6 +53,7 @@ QString Backend::getPassType() const {
 }
 void Backend::setPassType(QString value) {
   passType = value.toStdString();
+  emit controlsStateChanged();
   emit recalculationNeeded();
 }
 
@@ -59,6 +62,7 @@ QString Backend::getFilterType() const {
 }
 void Backend::setFilterType(QString value) {
   filterType = value.toStdString();
+  emit controlsStateChanged();
   emit recalculationNeeded();
 }
 
@@ -67,6 +71,7 @@ QString Backend::getWindowType() const {
 }
 void Backend::setWindowType(QString value) {
   windowType = value.toStdString();
+  emit controlsStateChanged();
   emit recalculationNeeded();
 }
 
@@ -80,6 +85,8 @@ int Backend::getAttenuationDBRangeTo() const {
 void Backend::setAttenuationDB(int value) {
   attenuationDB = value;
 
+    qInfo() << "setAttenuationDB " << value << "\n";
+
   if (useOptimalFilterSize) {
     setFilterSize(FIRFilter::getOptimalCoefficientsCount(
         samplingRate, attenuationDB, transitionLength));
@@ -87,6 +94,8 @@ void Backend::setAttenuationDB(int value) {
     setTransitionLength(FIRFilter::getTransitionLength(
         samplingRate, attenuationDB, filterSize));
   }
+
+  emit controlsStateChanged();
 }
 
 int Backend::getTransitionLength() const { return transitionLength; }
@@ -99,10 +108,14 @@ int Backend::getTransitionLengthRangeTo() const {
 void Backend::setTransitionLength(int value) {
   transitionLength = value;
 
+  qInfo() << "setTransitionLength " << value << "\n";
+
   if (useOptimalFilterSize) {
     setFilterSize(FIRFilter::getOptimalCoefficientsCount(
         samplingRate, attenuationDB, transitionLength));
   }
+
+  emit controlsStateChanged();
 }
 
 int Backend::getFilterSize() const { return filterSize; }
@@ -113,16 +126,21 @@ int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRangeTo; }
 void Backend::setFilterSize(int value) {
   filterSize = value;
 
+  qInfo() << "setFilterSize " << value << "\n";
+
   if (!useOptimalFilterSize) {
     setTransitionLength(FIRFilter::getTransitionLength(
         samplingRate, attenuationDB, filterSize));
   }
 
+  emit controlsStateChanged();
   emit recalculationNeeded();
 }
 bool Backend::isUseOptimalFilterSize() const { return useOptimalFilterSize; }
 void Backend::setUseOptimalFilterSize(bool value) {
   useOptimalFilterSize = value;
+
+  emit controlsStateChanged();
 }
 
 QString Backend::getCoefficientsString() const {

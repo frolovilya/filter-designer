@@ -64,6 +64,7 @@ public slots:
   void updateFrequencyResponse(QAbstractSeries *series);
 
 signals:
+  void controlsStateChanged();
   void recalculationNeeded();
   void calculationCompleted();
 

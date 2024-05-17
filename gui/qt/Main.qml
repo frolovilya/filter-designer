@@ -186,7 +186,7 @@ ApplicationWindow {
 
             Connections {
                 target: backend
-                function onRecalculationNeeded() {
+                function onControlsStateChanged() {
                     samplingRate.from = backend.getSamplingRateRangeFrom()
                     samplingRate.to = backend.getSamplingRateRangeTo()
 
@@ -272,6 +272,13 @@ ApplicationWindow {
                             magnitudeAxisY.min = backend.getFrequencyResponseMinValue()
                             magnitudeAxisY.max = backend.getFrequencyResponseMaxValue()
 
+                            backend.updateFrequencyResponse(frequencyResponseSeries)
+                        }
+                    }
+
+                    Connections {
+                        target: backend
+                        function onControlsStateChanged() {
                             passBand.upperSeries = createBandLineSeries(
                                         0, backend.getCutoffFrequency(),
                                         backend.getFrequencyResponseMaxValue(),
@@ -291,9 +298,6 @@ ApplicationWindow {
                                         backend.getTransitionLength() + backend.getCutoffFrequency(),
                                         backend.getFrequencyResponseMinValue(),
                                         transitionBand)
-
-                            backend.updateFrequencyResponse(
-                                        frequencyResponseSeries)
                         }
                     }
                 }
