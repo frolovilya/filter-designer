@@ -63,10 +63,10 @@ ApplicationWindow {
             SpinBox {
                 id: samplingRate
                 Layout.fillWidth: true
-                from: backend.samplingRateFrom
-                to: backend.samplingRateTo
+                from: backend.getSamplingRateRangeFrom()
+                to: backend.getSamplingRateRangeTo()
                 editable: true
-                value: backend.defaultSamplingRate
+                value: backend.getSamplingRate()
                 onValueChanged: backend.setSamplingRate(value)
             }
 
@@ -76,10 +76,10 @@ ApplicationWindow {
             SpinBox {
                 id: cutoffFrequency
                 Layout.fillWidth: true
-                from: backend.cutoffFrequencyFrom
-                to: backend.cutoffFrequencyTo
+                from: backend.getCutoffFrequencyRangeFrom()
+                to: backend.getCutoffFrequencyRangeTo()
                 editable: true
-                value: backend.defaultCutoffFrequency
+                value: backend.getCutoffFrequency()
                 onValueChanged: backend.setCutoffFrequency(value)
             }
 
@@ -122,9 +122,9 @@ ApplicationWindow {
             SpinBox {
                 id: filterSize
                 Layout.fillWidth: true
-                from: backend.filterSizeFrom
-                to: backend.filterSizeTo
-                value: backend.defaultFilterSize
+                from: backend.getFilterSizeRangeFrom()
+                to: backend.getFilterSizeRangeTo()
+                value: backend.getFilterSize()
                 editable: true
                 visible: isFIR()
                 onValueChanged: backend.setFilterSize(value)
@@ -132,6 +132,17 @@ ApplicationWindow {
 
             Item {
                 Layout.fillHeight: true
+            }
+
+            Connections {
+                target: backend
+                function onRecalculationNeeded() {
+                    samplingRate.from = backend.getSamplingRateRangeFrom()
+                    samplingRate.to = backend.getSamplingRateRangeTo()
+
+                    cutoffFrequency.from = backend.getCutoffFrequencyRangeFrom()
+                    cutoffFrequency.to = backend.getCutoffFrequencyRangeTo()
+                }
             }
         }
 
@@ -160,7 +171,7 @@ ApplicationWindow {
 
                     ValuesAxis {
                         id: frequencyAxisX
-                        min: 0
+                        min: 1
                         max: 1000
                         gridVisible: false
                         lineVisible: false
@@ -304,7 +315,7 @@ ApplicationWindow {
                     Layout.preferredWidth: 50
                     Layout.preferredHeight: 50
                     Layout.fillHeight: true
-                    icon.source: "icons/clipboard.png"
+                    icon.source: "/icons/qt/clipboard.png"
                     icon.color: "white"
                     palette.button: "dimgray"
                     onClicked: {

@@ -21,12 +21,24 @@ Backend::Backend(QObject *parent)
 }
 
 int Backend::getSamplingRate() const { return samplingRate; }
+int Backend::getSamplingRateRangeFrom() const {
+  return defaultSamplingRateRangeFrom;
+}
+int Backend::getSamplingRateRangeTo() const {
+  return defaultSamplingRateRangeTo;
+}
 void Backend::setSamplingRate(int value) {
   samplingRate = value;
   emit recalculationNeeded();
 }
 
 int Backend::getCutoffFrequency() const { return cutoffFrequency; }
+int Backend::getCutoffFrequencyRangeFrom() const {
+  return defaultCutoffFrequencyRangeFrom;
+}
+int Backend::getCutoffFrequencyRangeTo() const {
+  return std::min(defaultCutoffFrequencyRangeTo, samplingRate / 2);
+}
 void Backend::setCutoffFrequency(int value) {
   cutoffFrequency = value;
   emit recalculationNeeded();
@@ -57,6 +69,10 @@ void Backend::setWindowType(QString value) {
 }
 
 int Backend::getFilterSize() const { return filterSize; }
+int Backend::getFilterSizeRangeFrom() const {
+  return defaultFilterSizeRangeFrom;
+}
+int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRangeTo; }
 void Backend::setFilterSize(int value) {
   filterSize = value;
   emit recalculationNeeded();
@@ -92,6 +108,9 @@ double Backend::getFrequencyResponseMaxValue() const {
   return *std::max_element(frequencyResponse.begin(), frequencyResponse.end());
 }
 
+/**
+ * Recalculate coefficients and filter frequency response
+ */
 void Backend::recalculate() {
   std::unique_ptr<Filter> filter;
 
@@ -112,8 +131,6 @@ void Backend::recalculate() {
 
   coefficients = filter->getFilterCoefficients();
 
-  const int minDisplayedFrequencyResponseRange = 1000;
-  const int displayedFrequencyResponseCutoffMult = 4;
   frequencyResponse = filter->calculateResponseDB(
       1,
       std::max(std::min(nyquistFrequency(samplingRate),
@@ -123,13 +140,17 @@ void Backend::recalculate() {
   emit calculationCompleted();
 }
 
-void Backend::updateCoefficients(QAbstractSeries *series) {
+/**
+ * Dynamically update QML LineSeries with new points
+ */
+void Backend::updateListSeries(QAbstractSeries *series,
+                               const std::vector<double> &data) {
   if (series) {
     QList<QPointF> points;
-    points.reserve(coefficients.size());
-    for (unsigned int j = 0; j < coefficients.size(); j++) {
+    points.reserve(data.size());
+    for (unsigned int j = 0; j < data.size(); j++) {
       qreal x = j;
-      qreal y = coefficients[j];
+      qreal y = data[j];
       points.append(QPointF(x, y));
     }
 
@@ -139,18 +160,10 @@ void Backend::updateCoefficients(QAbstractSeries *series) {
   }
 }
 
-void Backend::updateFrequencyResponse(QAbstractSeries *series) {
-  if (series) {
-    QList<QPointF> points;
-    points.reserve(frequencyResponse.size());
-    for (unsigned int j = 0; j < frequencyResponse.size(); j++) {
-      qreal x = j;
-      qreal y = frequencyResponse[j];
-      points.append(QPointF(x, y));
-    }
+void Backend::updateCoefficients(QAbstractSeries *series) {
+  updateListSeries(series, coefficients);
+}
 
-    auto xySeries = static_cast<QXYSeries *>(series);
-    // Use replace instead of clear + append, it's optimized for performance
-    xySeries->replace(points);
-  }
+void Backend::updateFrequencyResponse(QAbstractSeries *series) {
+  updateListSeries(series, frequencyResponse);
 }

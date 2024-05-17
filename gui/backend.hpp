@@ -15,33 +15,21 @@ class Backend : public QObject {
 public:
   explicit Backend(QObject *parent = nullptr);
 
-  Q_PROPERTY(int samplingRateFrom MEMBER samplingRateFrom CONSTANT)
-  const int samplingRateFrom = 2;
-  Q_PROPERTY(int samplingRateTo MEMBER samplingRateTo CONSTANT)
-  const int samplingRateTo = 200000;
-  Q_PROPERTY(int defaultSamplingRate MEMBER defaultSamplingRate CONSTANT)
-  const int defaultSamplingRate = 48000;
-
-  Q_PROPERTY(int cutoffFrequencyFrom MEMBER cutoffFrequencyFrom CONSTANT)
-  const int cutoffFrequencyFrom = 1;
-  Q_PROPERTY(int cutoffFrequencyTo MEMBER cutoffFrequencyTo CONSTANT)
-  const int cutoffFrequencyTo = 40000;
-  Q_PROPERTY(int defaultCutoffFrequency MEMBER defaultCutoffFrequency CONSTANT)
-  const int defaultCutoffFrequency = 200;
-
-  Q_PROPERTY(int filterSizeFrom MEMBER filterSizeFrom CONSTANT)
-  const int filterSizeFrom = 2;
-  Q_PROPERTY(int filterSizeTo MEMBER filterSizeTo CONSTANT)
-  const int filterSizeTo = 20000;
-  Q_PROPERTY(int defaultFilterSize MEMBER defaultFilterSize CONSTANT)
-  const int defaultFilterSize = 200;
-
   Q_INVOKABLE int getSamplingRate() const;
+  Q_INVOKABLE int getSamplingRateRangeFrom() const;
+  Q_INVOKABLE int getSamplingRateRangeTo() const;
+
   Q_INVOKABLE int getCutoffFrequency() const;
+  Q_INVOKABLE int getCutoffFrequencyRangeFrom() const;
+  Q_INVOKABLE int getCutoffFrequencyRangeTo() const;
+
   Q_INVOKABLE QString getPassType() const;
   Q_INVOKABLE QString getFilterType() const;
   Q_INVOKABLE QString getWindowType() const;
+
   Q_INVOKABLE int getFilterSize() const;
+  Q_INVOKABLE int getFilterSizeRangeFrom() const;
+  Q_INVOKABLE int getFilterSizeRangeTo() const;
 
   Q_INVOKABLE int getCoefficientsCount() const;
   Q_INVOKABLE double getCoefficientsMinValue() const;
@@ -68,6 +56,19 @@ signals:
   void calculationCompleted();
 
 private:
+  const int defaultSamplingRate = 48000;
+  const int defaultSamplingRateRangeFrom = 2;
+  const int defaultSamplingRateRangeTo = 200000;
+  const int defaultCutoffFrequency = 200;
+  const int defaultCutoffFrequencyRangeFrom = 1;
+  const int defaultCutoffFrequencyRangeTo = 40000;
+  const int defaultFilterSize = 200;
+  const int defaultFilterSizeRangeFrom = 2;
+  const int defaultFilterSizeRangeTo = 10000;
+
+  const int minDisplayedFrequencyResponseRange = 1000;
+  const int displayedFrequencyResponseCutoffMult = 4;
+
   int samplingRate;
   int cutoffFrequency;
   std::string passType;
@@ -76,6 +77,8 @@ private:
   int filterSize;
   std::vector<double> coefficients;
   std::vector<double> frequencyResponse;
+
+  void updateListSeries(QAbstractSeries *series, const std::vector<double>& data);
 };
 
 #endif // BACKEND_H
