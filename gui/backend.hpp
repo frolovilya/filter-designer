@@ -6,7 +6,6 @@
 #include <QPointF>
 #include <string>
 #include <vector>
-#include "../shared/FFT.hpp"
 
 QT_FORWARD_DECLARE_CLASS(QAbstractSeries)
 
@@ -46,9 +45,11 @@ public:
   Q_INVOKABLE double getCoefficientsMaxValue() const;
   Q_INVOKABLE QString getCoefficientsString() const;
 
-  Q_INVOKABLE int getFrequencyResponseBinsCount() const;
   Q_INVOKABLE double getFrequencyResponseMinValue() const;
   Q_INVOKABLE double getFrequencyResponseMaxValue() const;
+
+  Q_INVOKABLE int getVisibleFrequencyFrom() const;
+  Q_INVOKABLE int getVisibleFrequencyTo() const;
 
 public slots:
   void setSamplingRate(int value);
@@ -60,6 +61,8 @@ public slots:
   void setTransitionLength(int value);
   void setFilterSize(int value);
   void setUseOptimalFilterSize(bool value);
+  void setVisibleFrequencyFrom(int value);
+  void setVisibleFrequencyTo(int value);
   void recalculate();
   void updateCoefficients(QAbstractSeries *series);
   void updateFrequencyResponse(QAbstractSeries *series);
@@ -98,10 +101,13 @@ private:
   int transitionLength;
   int filterSize;
   bool useOptimalFilterSize;
+  int visibleFrequencyFrom;
+  int visibleFrequencyTo;
   std::vector<double> coefficients;
   std::vector<double> frequencyResponse;
 
-  void updateListSeries(QAbstractSeries *series, const std::vector<double>& data);
+  void updateListSeries(QAbstractSeries *series,
+                        const std::vector<double> &data, int from, int to);
 };
 
 #endif // BACKEND_H

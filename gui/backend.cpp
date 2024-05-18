@@ -18,7 +18,8 @@ Backend::Backend(QObject *parent)
       cutoffFrequency{defaultCutoffFrequency},
       attenuationDB{defaultAttenuationDB},
       transitionLength{defaultTransitionLength}, filterSize{defaultFilterSize},
-    useOptimalFilterSize{true}, coefficients{{}} {
+      useOptimalFilterSize{true}, visibleFrequencyFrom{1},
+      visibleFrequencyTo{minDisplayedFrequencyResponseRange}, coefficients{{}} {
   QObject::connect(this, &Backend::recalculationNeeded, &Backend::recalculate);
 }
 
@@ -30,7 +31,11 @@ int Backend::getSamplingRateRangeTo() const {
   return defaultSamplingRateRangeTo;
 }
 void Backend::setSamplingRate(int value) {
-  samplingRate = value;
+  samplingRate = std::max(std::min(value, getSamplingRateRangeTo()),
+                          getSamplingRateRangeFrom());
+
+  setVisibleFrequencyTo(nyquistFrequency(samplingRate));
+
   emit controlsStateChanged();
   emit recalculationNeeded();
 }
@@ -40,10 +45,18 @@ int Backend::getCutoffFrequencyRangeFrom() const {
   return defaultCutoffFrequencyRangeFrom;
 }
 int Backend::getCutoffFrequencyRangeTo() const {
-  return std::min(defaultCutoffFrequencyRangeTo, samplingRate / 2);
+  return std::min(defaultCutoffFrequencyRangeTo,
+                  nyquistFrequency(samplingRate));
 }
 void Backend::setCutoffFrequency(int value) {
-  cutoffFrequency = value;
+  cutoffFrequency = std::max(std::min(value, getCutoffFrequencyRangeTo()),
+                             getCutoffFrequencyRangeFrom());
+
+  if (cutoffFrequency > visibleFrequencyTo) {
+    setVisibleFrequencyTo(cutoffFrequency *
+                          displayedFrequencyResponseCutoffMult);
+  }
+
   emit controlsStateChanged();
   emit recalculationNeeded();
 }
@@ -53,6 +66,7 @@ QString Backend::getPassType() const {
 }
 void Backend::setPassType(QString value) {
   passType = value.toStdString();
+
   emit controlsStateChanged();
   emit recalculationNeeded();
 }
@@ -62,6 +76,7 @@ QString Backend::getFilterType() const {
 }
 void Backend::setFilterType(QString value) {
   filterType = value.toStdString();
+
   emit controlsStateChanged();
   emit recalculationNeeded();
 }
@@ -71,6 +86,7 @@ QString Backend::getWindowType() const {
 }
 void Backend::setWindowType(QString value) {
   windowType = value.toStdString();
+
   emit controlsStateChanged();
   emit recalculationNeeded();
 }
@@ -83,7 +99,8 @@ int Backend::getAttenuationDBRangeTo() const {
   return defaultAttenuationDBRangeTo;
 }
 void Backend::setAttenuationDB(int value) {
-  attenuationDB = value;
+  attenuationDB = std::max(std::min(value, getAttenuationDBRangeTo()),
+                           getAttenuationDBRangeFrom());
 
   if (useOptimalFilterSize) {
     setFilterSize(FIRFilter::getOptimalCoefficientsCount(
@@ -104,7 +121,8 @@ int Backend::getTransitionLengthRangeTo() const {
   return defaultTransitionLengthRangeTo;
 }
 void Backend::setTransitionLength(int value) {
-  transitionLength = value;
+  transitionLength = std::max(std::min(value, getTransitionLengthRangeTo()),
+                              getTransitionLengthRangeFrom());
 
   if (useOptimalFilterSize) {
     setFilterSize(FIRFilter::getOptimalCoefficientsCount(
@@ -120,7 +138,8 @@ int Backend::getFilterSizeRangeFrom() const {
 }
 int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRangeTo; }
 void Backend::setFilterSize(int value) {
-  filterSize = value;
+  filterSize = std::max(std::min(value, getFilterSizeRangeTo()),
+                        getFilterSizeRangeFrom());
 
   if (!useOptimalFilterSize) {
     setTransitionLength(FIRFilter::getTransitionLength(
@@ -157,14 +176,29 @@ double Backend::getCoefficientsMaxValue() const {
   return *std::max_element(coefficients.begin(), coefficients.end());
 }
 
-int Backend::getFrequencyResponseBinsCount() const {
-  return frequencyResponse.size();
-}
 double Backend::getFrequencyResponseMinValue() const {
-  return *std::min_element(frequencyResponse.begin(), frequencyResponse.end());
+  return *std::min_element(frequencyResponse.begin() + visibleFrequencyFrom - 1,
+                           frequencyResponse.begin() + visibleFrequencyTo - 1);
 }
 double Backend::getFrequencyResponseMaxValue() const {
-  return *std::max_element(frequencyResponse.begin(), frequencyResponse.end());
+  return *std::max_element(frequencyResponse.begin() + visibleFrequencyFrom - 1,
+                           frequencyResponse.begin() + visibleFrequencyTo - 1);
+}
+
+int Backend::getVisibleFrequencyFrom() const { return visibleFrequencyFrom; }
+void Backend::setVisibleFrequencyFrom(int value) {
+  visibleFrequencyFrom =
+      std::min(std::max(value, getSamplingRateRangeFrom() / 2),
+               getVisibleFrequencyTo() - 1);
+
+  emit controlsStateChanged();
+}
+int Backend::getVisibleFrequencyTo() const { return visibleFrequencyTo; }
+void Backend::setVisibleFrequencyTo(int value) {
+  visibleFrequencyTo = std::max(std::min(value, nyquistFrequency(samplingRate)),
+                                getVisibleFrequencyFrom() + 1);
+
+  emit controlsStateChanged();
 }
 
 /**
@@ -194,16 +228,8 @@ void Backend::recalculate() {
 
   coefficients = filter->getFilterCoefficients();
 
-  frequencyResponse = filter->calculateResponseDB(
-      1,
-      std::max(std::min(nyquistFrequency(samplingRate),
-                        cutoffFrequency * displayedFrequencyResponseCutoffMult),
-               minDisplayedFrequencyResponseRange));
-
-  /*for (const double &f : frequencyResponse) {
-      qInfo() << f << " ";
-  }
-  qInfo() << "\n";*/
+  frequencyResponse =
+      filter->calculateResponseDB(1, nyquistFrequency(samplingRate));
 
   emit calculationCompleted();
 }
@@ -212,11 +238,14 @@ void Backend::recalculate() {
  * Dynamically update QML LineSeries with new points
  */
 void Backend::updateListSeries(QAbstractSeries *series,
-                               const std::vector<double> &data) {
+                               const std::vector<double> &data, int from,
+                               int to) {
   if (series) {
+    int dataSize = std::min(static_cast<int>(data.size()), to) - from;
     QList<QPointF> points;
-    points.reserve(data.size());
-    for (unsigned int j = 0; j < data.size(); j++) {
+    points.reserve(dataSize);
+
+    for (int j = from; j < dataSize + from; j++) {
       qreal x = j;
       qreal y = data[j];
       points.append(QPointF(x, y));
@@ -229,9 +258,11 @@ void Backend::updateListSeries(QAbstractSeries *series,
 }
 
 void Backend::updateCoefficients(QAbstractSeries *series) {
-  updateListSeries(series, coefficients);
+  updateListSeries(series, coefficients, visibleFrequencyFrom - 1,
+                   visibleFrequencyTo - 1);
 }
 
 void Backend::updateFrequencyResponse(QAbstractSeries *series) {
-  updateListSeries(series, frequencyResponse);
+  updateListSeries(series, frequencyResponse, visibleFrequencyFrom - 1,
+                   visibleFrequencyTo - 1);
 }
