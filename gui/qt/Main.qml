@@ -321,7 +321,8 @@ ApplicationWindow {
                     id: frequencyAxisX
                     min: 1
                     max: 1000
-                    gridVisible: false
+                    gridLineColor: "dimgray"
+                    gridVisible: true
                     lineVisible: false
                     labelFormat: "%.0f"
                     labelsColor: "dimgray"
@@ -332,8 +333,10 @@ ApplicationWindow {
                     id: magnitudeAxisY
                     min: -100
                     max: 0
-                    gridVisible: false
+                    gridLineColor: "dimgray"
+                    gridVisible: true
                     lineVisible: false
+                    labelFormat: "%.0f"
                     labelsColor: "dimgray"
                     titleText: "Magnitude (dB)"
                 }

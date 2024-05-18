@@ -9,6 +9,5 @@ add_compile_options(-Wall -Wextra -pedantic -Werror)
 project(filter-designer VERSION 0.1 LANGUAGES CXX)
 
 add_subdirectory(shared)
-add_subdirectory(cmd)
 add_subdirectory(gui)
 add_subdirectory(test)
