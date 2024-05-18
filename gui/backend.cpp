@@ -67,6 +67,14 @@ void Backend::setCutoffFrequency(int value) {
 QString Backend::getPassType() const {
   return QString::fromStdString(toString(passType));
 }
+QList<QString> Backend::getPassTypes() const {
+    QList<QString> values;
+    for (unsigned int i = 0; i < sizeof(passTypes) / sizeof(passTypes[0]); i++) {
+        values.push_back(QString::fromStdString(passTypes[i].str));
+    }
+
+    return values;
+}
 void Backend::setPassType(QString value) {
   if (value.toStdString() == toString(passType)) {
     return;
@@ -80,6 +88,14 @@ void Backend::setPassType(QString value) {
 QString Backend::getFilterType() const {
   return QString::fromStdString(toString(filterType));
 }
+QList<QString> Backend::getFilterTypes() const {
+    QList<QString> values;
+    for (unsigned int i = 0; i < sizeof(filterTypes) / sizeof(filterTypes[0]); i++) {
+        values.push_back(QString::fromStdString(filterTypes[i].str));
+    }
+
+    return values;
+}
 void Backend::setFilterType(QString value) {
   if (value.toStdString() == toString(filterType)) {
     return;
@@ -92,6 +108,14 @@ void Backend::setFilterType(QString value) {
 
 QString Backend::getWindowType() const {
   return QString::fromStdString(toString(windowType));
+}
+QList<QString> Backend::getWindowTypes() const {
+    QList<QString> values;
+    for (unsigned int i = 0; i < sizeof(windowTypes) / sizeof(windowTypes[0]); i++) {
+        values.push_back(QString::fromStdString(windowTypes[i].str));
+    }
+
+    return values;
 }
 void Backend::setWindowType(QString value) {
   if (value.toStdString() == toString(windowType)) {

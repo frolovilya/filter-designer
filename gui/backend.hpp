@@ -4,7 +4,6 @@
 #include <QList>
 #include <QObject>
 #include <QPointF>
-#include <string>
 #include <vector>
 #include "listSelectorValues.hpp"
 #include "valueRange.hpp"
@@ -27,8 +26,11 @@ public:
   Q_INVOKABLE int getCutoffFrequencyRangeTo() const;
 
   Q_INVOKABLE QString getPassType() const;
+  Q_INVOKABLE QList<QString> getPassTypes() const;
   Q_INVOKABLE QString getFilterType() const;
+  Q_INVOKABLE QList<QString> getFilterTypes() const;
   Q_INVOKABLE QString getWindowType() const;
+  Q_INVOKABLE QList<QString> getWindowTypes() const;
 
   Q_INVOKABLE int getAttenuationDB() const;
   Q_INVOKABLE int getAttenuationDBRangeFrom() const;

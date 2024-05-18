@@ -1,64 +1,49 @@
 #include "listSelectorValues.hpp"
 #include <stdexcept>
 
-
-std::string toString(WindowType value) {
-    for (unsigned int i = 0; i < sizeof(windowTypes) / sizeof(windowTypes[0]); i++) {
-        if (windowTypes[i].val == value) {
-            return windowTypes[i].str;
+template <typename E, typename C>
+std::string toString(E value, C converter, size_t converterSize) {
+    for (unsigned int i = 0; i < converterSize; i++) {
+        if (converter[i].val == value) {
+            return converter[i].str;
         }
     }
 
-    throw std::logic_error("Unable to convert window type to string");
+    throw std::logic_error("Unable to convert enum to string");
+}
+
+template <typename E, typename C>
+E toValue(std::string str, C converter, size_t converterSize) {
+    for (unsigned int i = 0; i < converterSize; i++) {
+        if (converter[i].str == str) {
+            return converter[i].val;
+        }
+    }
+
+    throw std::invalid_argument("Unable to convert string to enum");
+}
+
+std::string toString(WindowType value) {
+    return toString(value, windowTypes, sizeof(windowTypes) / sizeof(windowTypes[0]));
 }
 
 WindowType toWindowType(std::string str) {
-    for (unsigned int i = 0; i < sizeof(windowTypes) / sizeof(windowTypes[0]); i++) {
-        if (windowTypes[i].str == str) {
-            return windowTypes[i].val;
-        }
-    }
-
-    throw std::invalid_argument("Invalid window type value");
+    return toValue<WindowType>(str, windowTypes, sizeof(windowTypes) / sizeof(windowTypes[0]));
 }
 
 std::string toString(FilterType value) {
-    for (unsigned int i = 0; i < sizeof(filterTypes) / sizeof(filterTypes[0]); i++) {
-        if (filterTypes[i].val == value) {
-            return filterTypes[i].str;
-        }
-    }
-
-    throw std::logic_error("Unable to convert filter type to string");
+    return toString(value, filterTypes, sizeof(filterTypes) / sizeof(filterTypes[0]));
 }
 
 FilterType toFilterType(std::string str) {
-    for (unsigned int i = 0; i < sizeof(filterTypes) / sizeof(filterTypes[0]); i++) {
-        if (filterTypes[i].str == str) {
-            return filterTypes[i].val;
-        }
-    }
-
-    throw std::invalid_argument("Invalid filter type value");
+    return toValue<FilterType>(str, filterTypes, sizeof(filterTypes) / sizeof(filterTypes[0]));
 }
 
 std::string toString(PassType value) {
-    for (unsigned int i = 0; i < sizeof(passTypes) / sizeof(passTypes[0]); i++) {
-        if (passTypes[i].val == value) {
-            return passTypes[i].str;
-        }
-    }
-
-    throw std::logic_error("Unable to convert pass type to string");
+    return toString(value, passTypes, sizeof(passTypes) / sizeof(passTypes[0]));
 }
 
 PassType toPassType(std::string str) {
-    for (unsigned int i = 0; i < sizeof(passTypes) / sizeof(passTypes[0]); i++) {
-        if (passTypes[i].str == str) {
-            return passTypes[i].val;
-        }
-    }
-
-    throw std::invalid_argument("Invalid pass type value");
+    return toValue<PassType>(str, passTypes, sizeof(passTypes) / sizeof(passTypes[0]));
 }
 

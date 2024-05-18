@@ -71,7 +71,7 @@ ColumnLayout {
             ComboBox {
                 id: passType
                 Layout.fillWidth: true
-                model: ["Low Pass"]
+                model: backend.getPassTypes()
                 onCurrentValueChanged: backend.setPassType(currentValue)
             }
 
@@ -82,7 +82,7 @@ ColumnLayout {
             ComboBox {
                 id: filterType
                 Layout.fillWidth: true
-                model: ["FIR", "IIR"]
+                model: backend.getFilterTypes()
                 onCurrentValueChanged: backend.setFilterType(currentValue)
             }
 
@@ -94,7 +94,7 @@ ColumnLayout {
             ComboBox {
                 id: windowType
                 Layout.fillWidth: true
-                model: ["Blackman", "Rectangular"]
+                model: backend.getWindowTypes()
                 visible: isFIR()
                 onCurrentValueChanged: backend.setWindowType(currentValue)
             }
