@@ -88,7 +88,6 @@ private:
   const int defaultFilterSize = 200;
   const int defaultFilterSizeRangeFrom = 2;
   const int defaultFilterSizeRangeTo = 10000;
-
   const int minDisplayedFrequencyResponseRange = 1000;
   const int displayedFrequencyResponseCutoffMult = 4;
 

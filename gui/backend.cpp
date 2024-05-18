@@ -15,11 +15,12 @@
 
 Backend::Backend(QObject *parent)
     : QObject{parent}, samplingRate{defaultSamplingRate},
-      cutoffFrequency{defaultCutoffFrequency},
+    cutoffFrequency{defaultCutoffFrequency},
       attenuationDB{defaultAttenuationDB},
       transitionLength{defaultTransitionLength}, filterSize{defaultFilterSize},
       useOptimalFilterSize{true}, visibleFrequencyFrom{1},
       visibleFrequencyTo{minDisplayedFrequencyResponseRange}, coefficients{{}} {
+  recalculate();
   QObject::connect(this, &Backend::recalculationNeeded, &Backend::recalculate);
 }
 
@@ -31,6 +32,9 @@ int Backend::getSamplingRateRangeTo() const {
   return defaultSamplingRateRangeTo;
 }
 void Backend::setSamplingRate(int value) {
+  if (value == samplingRate) {
+    return;
+  }
   samplingRate = std::max(std::min(value, getSamplingRateRangeTo()),
                           getSamplingRateRangeFrom());
 
@@ -49,6 +53,9 @@ int Backend::getCutoffFrequencyRangeTo() const {
                   nyquistFrequency(samplingRate));
 }
 void Backend::setCutoffFrequency(int value) {
+  if (value == cutoffFrequency) {
+    return;
+  }
   cutoffFrequency = std::max(std::min(value, getCutoffFrequencyRangeTo()),
                              getCutoffFrequencyRangeFrom());
 
@@ -65,6 +72,9 @@ QString Backend::getPassType() const {
   return QString::fromStdString(passType);
 }
 void Backend::setPassType(QString value) {
+  if (value.toStdString() == passType) {
+    return;
+  }
   passType = value.toStdString();
 
   emit controlsStateChanged();
@@ -75,6 +85,9 @@ QString Backend::getFilterType() const {
   return QString::fromStdString(filterType);
 }
 void Backend::setFilterType(QString value) {
+  if (value.toStdString() == filterType) {
+    return;
+  }
   filterType = value.toStdString();
 
   emit controlsStateChanged();
@@ -85,6 +98,9 @@ QString Backend::getWindowType() const {
   return QString::fromStdString(windowType);
 }
 void Backend::setWindowType(QString value) {
+  if (value.toStdString() == windowType) {
+    return;
+  }
   windowType = value.toStdString();
 
   emit controlsStateChanged();
@@ -99,6 +115,9 @@ int Backend::getAttenuationDBRangeTo() const {
   return defaultAttenuationDBRangeTo;
 }
 void Backend::setAttenuationDB(int value) {
+  if (value == attenuationDB) {
+    return;
+  }
   attenuationDB = std::max(std::min(value, getAttenuationDBRangeTo()),
                            getAttenuationDBRangeFrom());
 
@@ -121,6 +140,9 @@ int Backend::getTransitionLengthRangeTo() const {
   return defaultTransitionLengthRangeTo;
 }
 void Backend::setTransitionLength(int value) {
+  if (value == transitionLength) {
+    return;
+  }
   transitionLength = std::max(std::min(value, getTransitionLengthRangeTo()),
                               getTransitionLengthRangeFrom());
 
@@ -138,6 +160,9 @@ int Backend::getFilterSizeRangeFrom() const {
 }
 int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRangeTo; }
 void Backend::setFilterSize(int value) {
+  if (value == filterSize) {
+    return;
+  }
   filterSize = std::max(std::min(value, getFilterSizeRangeTo()),
                         getFilterSizeRangeFrom());
 
@@ -151,6 +176,9 @@ void Backend::setFilterSize(int value) {
 }
 bool Backend::isUseOptimalFilterSize() const { return useOptimalFilterSize; }
 void Backend::setUseOptimalFilterSize(bool value) {
+  if (value == useOptimalFilterSize) {
+    return;
+  }
   useOptimalFilterSize = value;
 
   emit controlsStateChanged();
@@ -187,6 +215,9 @@ double Backend::getFrequencyResponseMaxValue() const {
 
 int Backend::getVisibleFrequencyFrom() const { return visibleFrequencyFrom; }
 void Backend::setVisibleFrequencyFrom(int value) {
+  if (value == visibleFrequencyFrom) {
+    return;
+  }
   visibleFrequencyFrom =
       std::min(std::max(value, getSamplingRateRangeFrom() / 2),
                getVisibleFrequencyTo() - 1);
@@ -195,6 +226,9 @@ void Backend::setVisibleFrequencyFrom(int value) {
 }
 int Backend::getVisibleFrequencyTo() const { return visibleFrequencyTo; }
 void Backend::setVisibleFrequencyTo(int value) {
+  if (value == visibleFrequencyTo) {
+    return;
+  }
   visibleFrequencyTo = std::max(std::min(value, nyquistFrequency(samplingRate)),
                                 getVisibleFrequencyFrom() + 1);
 

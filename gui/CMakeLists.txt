@@ -19,6 +19,9 @@ qt_add_qml_module(filter-designer
     QML_FILES
         qt/Main.qml
         SOURCES backend.hpp backend.cpp
+        QML_FILES qt/FilterCoefficients.qml
+        QML_FILES qt/FrequencyResponse.qml
+        QML_FILES qt/Controls.qml
 )
 
 set_target_properties(filter-designer PROPERTIES
