@@ -4,7 +4,7 @@ find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Charts)
 qt_standard_project_setup()
 
 qt_add_executable(filter-designer
-    main.cpp
+  Main.cpp
 )
 
 qt_add_resources(filter-designer "assets"
@@ -18,14 +18,14 @@ qt_add_qml_module(filter-designer
     NO_RESOURCE_TARGET_PATH
     QML_FILES
         qt/Main.qml
-        SOURCES backend.hpp backend.cpp
+        SOURCES Backend.hpp Backend.cpp
         QML_FILES qt/FilterCoefficients.qml
         QML_FILES qt/FrequencyResponse.qml
         QML_FILES qt/Controls.qml
-        SOURCES listSelectorValues.hpp
-        SOURCES listSelectorValues.cpp
-        SOURCES valueRange.hpp
-        SOURCES defaultValues.hpp
+        SOURCES ListSelectorValues.hpp
+        SOURCES ListSelectorValues.cpp
+        SOURCES ValueRange.hpp
+        SOURCES DefaultControlValues.hpp
 )
 
 set_target_properties(filter-designer PROPERTIES

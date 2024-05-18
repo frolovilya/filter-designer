@@ -1,8 +1,8 @@
-#ifndef DEFAULTVALUES_HPP
-#define DEFAULTVALUES_HPP
+#ifndef DEFAULTCONTROLVALUES_H
+#define DEFAULTCONTROLVALUES_H
 
-#include "valueRange.hpp"
-#include "listSelectorValues.hpp"
+#include "ValueRange.hpp"
+#include "ListSelectorValues.hpp"
 
 constexpr int defaultSamplingRate = 48000;
 constexpr ValueRange defaultSamplingRateRange{2, 200000};
@@ -30,4 +30,4 @@ constexpr ValueRange defaultVisibleFrequencyRange{1, defaultSamplingRate / 2};
 constexpr int minVisibleFrequencyResponseTo = 1000;
 constexpr int displayedFrequencyResponseCutoffMult = 4;
 
-#endif // DEFAULTVALUES_HPP
+#endif // DEFAULTCONTROLVALUES_H
