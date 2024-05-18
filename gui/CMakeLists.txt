@@ -22,6 +22,10 @@ qt_add_qml_module(filter-designer
         QML_FILES qt/FilterCoefficients.qml
         QML_FILES qt/FrequencyResponse.qml
         QML_FILES qt/Controls.qml
+        SOURCES listSelectorValues.hpp
+        SOURCES listSelectorValues.cpp
+        SOURCES valueRange.hpp
+        SOURCES defaultValues.hpp
 )
 
 set_target_properties(filter-designer PROPERTIES

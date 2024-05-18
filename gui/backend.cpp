@@ -4,6 +4,7 @@
 #include "../shared/fir/FIRFilter.hpp"
 #include "../shared/fir/RectangularWindow.hpp"
 #include "../shared/iir/IIRFilter.hpp"
+#include "listSelectorValues.hpp"
 #include <QAreaSeries>
 #include <QDebug>
 #include <QQuickItem>
@@ -14,22 +15,17 @@
 #include <sstream>
 
 Backend::Backend(QObject *parent)
-    : QObject{parent}, samplingRate{defaultSamplingRate},
-    cutoffFrequency{defaultCutoffFrequency},
-      attenuationDB{defaultAttenuationDB},
-      transitionLength{defaultTransitionLength}, filterSize{defaultFilterSize},
-      useOptimalFilterSize{true}, visibleFrequencyFrom{1},
-      visibleFrequencyTo{minDisplayedFrequencyResponseRange}, coefficients{{}} {
-  recalculate();
-  QObject::connect(this, &Backend::recalculationNeeded, &Backend::recalculate);
+    : QObject{parent}, coefficients{{}}, frequencyResponse{{}} {
+  QObject::connect(this, &Backend::recalculationNeeded,
+                   &Backend::recalculateCoefficientsAndFrequencyResponse);
 }
 
 int Backend::getSamplingRate() const { return samplingRate; }
 int Backend::getSamplingRateRangeFrom() const {
-  return defaultSamplingRateRangeFrom;
+  return defaultSamplingRateRange.from;
 }
 int Backend::getSamplingRateRangeTo() const {
-  return defaultSamplingRateRangeTo;
+  return defaultSamplingRateRange.to;
 }
 void Backend::setSamplingRate(int value) {
   if (value == samplingRate) {
@@ -46,10 +42,10 @@ void Backend::setSamplingRate(int value) {
 
 int Backend::getCutoffFrequency() const { return cutoffFrequency; }
 int Backend::getCutoffFrequencyRangeFrom() const {
-  return defaultCutoffFrequencyRangeFrom;
+  return defaultCutoffFrequencyRange.from;
 }
 int Backend::getCutoffFrequencyRangeTo() const {
-  return std::min(defaultCutoffFrequencyRangeTo,
+  return std::min(defaultCutoffFrequencyRange.to,
                   nyquistFrequency(samplingRate));
 }
 void Backend::setCutoffFrequency(int value) {
@@ -69,39 +65,39 @@ void Backend::setCutoffFrequency(int value) {
 }
 
 QString Backend::getPassType() const {
-  return QString::fromStdString(passType);
+  return QString::fromStdString(toString(passType));
 }
 void Backend::setPassType(QString value) {
-  if (value.toStdString() == passType) {
+  if (value.toStdString() == toString(passType)) {
     return;
   }
-  passType = value.toStdString();
+  passType = toPassType(value.toStdString());
 
   emit controlsStateChanged();
   emit recalculationNeeded();
 }
 
 QString Backend::getFilterType() const {
-  return QString::fromStdString(filterType);
+  return QString::fromStdString(toString(filterType));
 }
 void Backend::setFilterType(QString value) {
-  if (value.toStdString() == filterType) {
+  if (value.toStdString() == toString(filterType)) {
     return;
   }
-  filterType = value.toStdString();
+  filterType = toFilterType(value.toStdString());
 
   emit controlsStateChanged();
   emit recalculationNeeded();
 }
 
 QString Backend::getWindowType() const {
-  return QString::fromStdString(windowType);
+  return QString::fromStdString(toString(windowType));
 }
 void Backend::setWindowType(QString value) {
-  if (value.toStdString() == windowType) {
+  if (value.toStdString() == toString(windowType)) {
     return;
   }
-  windowType = value.toStdString();
+  windowType = toWindowType(value.toStdString());
 
   emit controlsStateChanged();
   emit recalculationNeeded();
@@ -109,10 +105,10 @@ void Backend::setWindowType(QString value) {
 
 int Backend::getAttenuationDB() const { return attenuationDB; }
 int Backend::getAttenuationDBRangeFrom() const {
-  return defaultAttenuationDBRangeFrom;
+  return defaultAttenuationDBRange.from;
 }
 int Backend::getAttenuationDBRangeTo() const {
-  return defaultAttenuationDBRangeTo;
+  return defaultAttenuationDBRange.to;
 }
 void Backend::setAttenuationDB(int value) {
   if (value == attenuationDB) {
@@ -134,10 +130,10 @@ void Backend::setAttenuationDB(int value) {
 
 int Backend::getTransitionLength() const { return transitionLength; }
 int Backend::getTransitionLengthRangeFrom() const {
-  return defaultTransitionLengthRangeFrom;
+  return defaultTransitionLengthRange.from;
 }
 int Backend::getTransitionLengthRangeTo() const {
-  return defaultTransitionLengthRangeTo;
+  return defaultTransitionLengthRange.to;
 }
 void Backend::setTransitionLength(int value) {
   if (value == transitionLength) {
@@ -156,9 +152,9 @@ void Backend::setTransitionLength(int value) {
 
 int Backend::getFilterSize() const { return filterSize; }
 int Backend::getFilterSizeRangeFrom() const {
-  return defaultFilterSizeRangeFrom;
+  return defaultFilterSizeRange.from;
 }
-int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRangeTo; }
+int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRange.to; }
 void Backend::setFilterSize(int value) {
   if (value == filterSize) {
     return;
@@ -238,19 +234,19 @@ void Backend::setVisibleFrequencyTo(int value) {
 /**
  * Recalculate coefficients and filter frequency response
  */
-void Backend::recalculate() {
+void Backend::recalculateCoefficientsAndFrequencyResponse() {
   std::unique_ptr<Filter> filter;
 
-  if (filterType == "FIR") {
+  if (filterType == FilterType::fir) {
     std::unique_ptr<Window> window;
-    if (windowType == "Blackman") {
+    if (windowType == WindowType::blackman) {
       window = std::unique_ptr<Window>(new BlackmanWindow());
     } else {
       window = std::unique_ptr<Window>(new RectangularWindow());
     }
 
     qInfo() << "FIR cutoffFrequency=" << cutoffFrequency
-            << "; filterSize=" << filterSize << "; window=" << windowType
+            << "; filterSize=" << filterSize << "; window=" << toString(windowType)
             << "; samplingRate=" << samplingRate << "\n";
 
     filter = std::unique_ptr<Filter>(

@@ -5,7 +5,7 @@
 using namespace std;
 
 /**
- * Simulator analog RC grid to implement a low pass filter
+ * Simulate analog RC grid to implement a low pass filter
  *
  *  Vin --R--+-- Vout
  *           |

@@ -6,6 +6,9 @@
 #include <QPointF>
 #include <string>
 #include <vector>
+#include "listSelectorValues.hpp"
+#include "valueRange.hpp"
+#include "defaultValues.hpp"
 
 QT_FORWARD_DECLARE_CLASS(QAbstractSeries)
 
@@ -63,7 +66,7 @@ public slots:
   void setUseOptimalFilterSize(bool value);
   void setVisibleFrequencyFrom(int value);
   void setVisibleFrequencyTo(int value);
-  void recalculate();
+  void recalculateCoefficientsAndFrequencyResponse();
   void updateCoefficients(QAbstractSeries *series);
   void updateFrequencyResponse(QAbstractSeries *series);
 
@@ -73,35 +76,17 @@ signals:
   void calculationCompleted();
 
 private:
-  const int defaultSamplingRate = 48000;
-  const int defaultSamplingRateRangeFrom = 2;
-  const int defaultSamplingRateRangeTo = 200000;
-  const int defaultCutoffFrequency = 200;
-  const int defaultCutoffFrequencyRangeFrom = 1;
-  const int defaultCutoffFrequencyRangeTo = 40000;
-  const int defaultAttenuationDB = 25;
-  const int defaultAttenuationDBRangeFrom = 1;
-  const int defaultAttenuationDBRangeTo = 99;
-  const int defaultTransitionLength = 100;
-  const int defaultTransitionLengthRangeFrom = 10;
-  const int defaultTransitionLengthRangeTo = 1000;
-  const int defaultFilterSize = 200;
-  const int defaultFilterSizeRangeFrom = 2;
-  const int defaultFilterSizeRangeTo = 10000;
-  const int minDisplayedFrequencyResponseRange = 1000;
-  const int displayedFrequencyResponseCutoffMult = 4;
-
-  int samplingRate;
-  int cutoffFrequency;
-  std::string passType;
-  std::string filterType;
-  std::string windowType;
-  int attenuationDB;
-  int transitionLength;
-  int filterSize;
-  bool useOptimalFilterSize;
-  int visibleFrequencyFrom;
-  int visibleFrequencyTo;
+  int samplingRate = defaultSamplingRate;
+  int cutoffFrequency = defaultCutoffFrequency;
+  PassType passType = defaultPassType;
+  FilterType filterType = defaultFilterType;
+  WindowType windowType = defaultWindowType;
+  int attenuationDB = defaultAttenuationDB;
+  int transitionLength = defaultTransitionLength;
+  int filterSize = defaultFilterSize;
+  bool useOptimalFilterSize = defaultUseOptimalFilterSize;
+  int visibleFrequencyFrom = defaultVisibleFrequencyRange.from;
+  int visibleFrequencyTo = defaultVisibleFrequencyRange.to;
   std::vector<double> coefficients;
   std::vector<double> frequencyResponse;
 

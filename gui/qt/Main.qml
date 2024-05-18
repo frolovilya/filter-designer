@@ -22,6 +22,8 @@ ApplicationWindow {
     Component.onCompleted: {
         width = mainLayout.implicitWidth + 2 * margin
         height = mainLayout.implicitHeight + 2 * margin
+
+        backend.recalculationNeeded()
     }
     minimumWidth: mainLayout.Layout.minimumWidth + 2 * margin
     minimumHeight: mainLayout.Layout.minimumHeight + 2 * margin
