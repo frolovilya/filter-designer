@@ -37,6 +37,28 @@ ApplicationWindow {
             }", parentObject)
     }
 
+    function updateBandLineSeries() {
+        passBand.upperSeries = createBandLineSeries(
+                    0, backend.getCutoffFrequency(),
+                    backend.getFrequencyResponseMaxValue(),
+                    passBand)
+        passBand.lowerSeries = createBandLineSeries(
+                    0, backend.getCutoffFrequency(),
+                    backend.getFrequencyResponseMinValue(),
+                    passBand)
+
+        transitionBand.upperSeries = createBandLineSeries(
+                    backend.getCutoffFrequency(),
+                    backend.getTransitionLength() + backend.getCutoffFrequency(),
+                    backend.getFrequencyResponseMaxValue(),
+                    transitionBand)
+        transitionBand.lowerSeries = createBandLineSeries(
+                    backend.getCutoffFrequency(),
+                    backend.getTransitionLength() + backend.getCutoffFrequency(),
+                    backend.getFrequencyResponseMinValue(),
+                    transitionBand)
+    }
+
     Backend {
         id: backend
     }
@@ -243,6 +265,7 @@ ApplicationWindow {
 
                     AreaSeries {
                         id: passBand
+                        visible: isFIR()
                         axisX: frequencyAxisX
                         axisY: magnitudeAxisY
                         color: "#2b4f3e"
@@ -251,6 +274,7 @@ ApplicationWindow {
 
                     AreaSeries {
                         id: transitionBand
+                        visible: isFIR()
                         axisX: frequencyAxisX
                         axisY: magnitudeAxisY
                         color: "#ab914e"
@@ -272,6 +296,8 @@ ApplicationWindow {
                             magnitudeAxisY.min = backend.getFrequencyResponseMinValue()
                             magnitudeAxisY.max = backend.getFrequencyResponseMaxValue()
 
+                            updateBandLineSeries()
+
                             backend.updateFrequencyResponse(frequencyResponseSeries)
                         }
                     }
@@ -279,25 +305,7 @@ ApplicationWindow {
                     Connections {
                         target: backend
                         function onControlsStateChanged() {
-                            passBand.upperSeries = createBandLineSeries(
-                                        0, backend.getCutoffFrequency(),
-                                        backend.getFrequencyResponseMaxValue(),
-                                        passBand)
-                            passBand.lowerSeries = createBandLineSeries(
-                                        0, backend.getCutoffFrequency(),
-                                        backend.getFrequencyResponseMinValue(),
-                                        passBand)
-
-                            transitionBand.upperSeries = createBandLineSeries(
-                                        backend.getCutoffFrequency(),
-                                        backend.getTransitionLength() + backend.getCutoffFrequency(),
-                                        backend.getFrequencyResponseMaxValue(),
-                                        transitionBand)
-                            transitionBand.lowerSeries = createBandLineSeries(
-                                        backend.getCutoffFrequency(),
-                                        backend.getTransitionLength() + backend.getCutoffFrequency(),
-                                        backend.getFrequencyResponseMinValue(),
-                                        transitionBand)
+                            updateBandLineSeries()
                         }
                     }
                 }

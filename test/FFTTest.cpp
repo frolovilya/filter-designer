@@ -16,8 +16,9 @@ BOOST_AUTO_TEST_CASE(direct_inverse_test) {
   auto generator = SineWave(samplingRateHz);
   auto wave = generator.generatePeriod(waveFrequencyHz, amplitude);
 
-  auto directResult = fftDirect(toComplexVector(wave));
-  auto inverseResult = fftInverse(directResult);
+  auto directResult = fft::direct(fft::toComplexVector(wave));
+  auto inverseResult = fft::inverse(directResult);
+
   vector<double> restoredWave;
   for (unsigned int i = 0; i < inverseResult.size(); i++) {
     restoredWave.push_back(inverseResult[i].real());

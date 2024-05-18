@@ -6,6 +6,7 @@
 #include <QPointF>
 #include <string>
 #include <vector>
+#include "../shared/FFT.hpp"
 
 QT_FORWARD_DECLARE_CLASS(QAbstractSeries)
 

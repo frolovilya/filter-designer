@@ -37,6 +37,7 @@ std::vector<double> normalize(const std::vector<double> &samples) {
   double maxValue = maxAbsValue(samples);
 
   std::vector<double> normalized;
+  normalized.reserve(samples.size());
   for (const double &sample : samples) {
     normalized.push_back(sample / maxValue);
   }

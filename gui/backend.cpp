@@ -18,7 +18,7 @@ Backend::Backend(QObject *parent)
       cutoffFrequency{defaultCutoffFrequency},
       attenuationDB{defaultAttenuationDB},
       transitionLength{defaultTransitionLength}, filterSize{defaultFilterSize},
-      useOptimalFilterSize{true}, coefficients{{}} {
+    useOptimalFilterSize{true}, coefficients{{}} {
   QObject::connect(this, &Backend::recalculationNeeded, &Backend::recalculate);
 }
 
@@ -85,8 +85,6 @@ int Backend::getAttenuationDBRangeTo() const {
 void Backend::setAttenuationDB(int value) {
   attenuationDB = value;
 
-    qInfo() << "setAttenuationDB " << value << "\n";
-
   if (useOptimalFilterSize) {
     setFilterSize(FIRFilter::getOptimalCoefficientsCount(
         samplingRate, attenuationDB, transitionLength));
@@ -108,8 +106,6 @@ int Backend::getTransitionLengthRangeTo() const {
 void Backend::setTransitionLength(int value) {
   transitionLength = value;
 
-  qInfo() << "setTransitionLength " << value << "\n";
-
   if (useOptimalFilterSize) {
     setFilterSize(FIRFilter::getOptimalCoefficientsCount(
         samplingRate, attenuationDB, transitionLength));
@@ -125,8 +121,6 @@ int Backend::getFilterSizeRangeFrom() const {
 int Backend::getFilterSizeRangeTo() const { return defaultFilterSizeRangeTo; }
 void Backend::setFilterSize(int value) {
   filterSize = value;
-
-  qInfo() << "setFilterSize " << value << "\n";
 
   if (!useOptimalFilterSize) {
     setTransitionLength(FIRFilter::getTransitionLength(
@@ -187,6 +181,10 @@ void Backend::recalculate() {
       window = std::unique_ptr<Window>(new RectangularWindow());
     }
 
+    qInfo() << "FIR cutoffFrequency=" << cutoffFrequency
+            << "; filterSize=" << filterSize << "; window=" << windowType
+            << "; samplingRate=" << samplingRate << "\n";
+
     filter = std::unique_ptr<Filter>(
         new FIRFilter(cutoffFrequency, filterSize, *window, samplingRate));
   } else {
@@ -201,6 +199,11 @@ void Backend::recalculate() {
       std::max(std::min(nyquistFrequency(samplingRate),
                         cutoffFrequency * displayedFrequencyResponseCutoffMult),
                minDisplayedFrequencyResponseRange));
+
+  /*for (const double &f : frequencyResponse) {
+      qInfo() << f << " ";
+  }
+  qInfo() << "\n";*/
 
   emit calculationCompleted();
 }

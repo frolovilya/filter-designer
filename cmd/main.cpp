@@ -65,12 +65,12 @@ void describeFilter(const Filter &filter) {
   }
   cout << "\n";
 
-  auto frequencyResponse = filter.calculateResponseDB(1, 1000);
-  cout << "Frequency Response\n";
-  for (const double &v : frequencyResponse) {
-    cout << v << " ";
-  }
-  cout << "\n";
+  auto frequencyResponse = filter.calculateResponseDB(1, 4000);
+  //cout << "Frequency Response\n";
+  //for (const double &v : frequencyResponse) {
+  //  cout << v << " ";
+  //}
+  //cout << "\n";
 }
 
 void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
@@ -90,8 +90,7 @@ void designFIRFilter(const int cutoffFrequencyHz, const int samplingRateHz,
   }
   cout << "Window Type " << windowType << "\n";
 
-  FIRFilter firFilter =
-      FIRFilter(cutoffFrequencyHz, filterSize, *window, samplingRateHz);
+  FIRFilter firFilter = FIRFilter(cutoffFrequencyHz, filterSize, *window, samplingRateHz);
 
   describeFilter(firFilter);
 }

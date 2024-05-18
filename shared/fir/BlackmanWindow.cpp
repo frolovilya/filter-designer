@@ -17,6 +17,7 @@ vector<double> BlackmanWindow::getCoefficients(const int windowSize) const {
   }
   
   vector<double> coefficients;
+  coefficients.reserve(windowSize);
 
   for (int i = 0; i < windowSize; i++) {
     coefficients.push_back(0.42 - 0.5 * cos((2 * M_PI * i) / (windowSize - 1)) +

@@ -20,7 +20,6 @@ FIRFilter::FIRFilter(int cutoffFrequencyHz, int coefficientsCount,
   if (samplingRateHz < 1) {
     throw invalid_argument("FIRFilter: samplingRateHz must be >= 1");
   }
-
   filterCoefficients = calculateFilterCoefficients(coefficientsCount);
 }
 
@@ -39,14 +38,15 @@ vector<double> FIRFilter::getFilterCoefficients() const {
  * @return ideal response magnitudes
  */
 vector<double> FIRFilter::generateIdealFrequencyResponse() const {
-  const int frequencyRangeHz{nyquistFrequency(samplingRateHz)};
-
   vector<double> response;
-  for (int i = 1; i < frequencyRangeHz; i++) {
-    response.push_back(i <= cutoffFrequencyHz ? 1 : 0);
-  }
-  for (int i = frequencyRangeHz - 1; i >= 1; i--) {
-    response.push_back(response[i]);
+  response.reserve(samplingRateHz);
+
+  // generate symmetric response
+  for (int i = 0; i < samplingRateHz; i++) {
+    response.push_back((i < cutoffFrequencyHz) ||
+                               (i >= samplingRateHz - cutoffFrequencyHz)
+                           ? 1
+                           : 0);
   }
 
   return response;
@@ -68,9 +68,11 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
 
   auto idealFrequencyResponse = generateIdealFrequencyResponse();
   vector<complex<double>> filterTimeDomain =
-      fftInverse(toComplexVector(idealFrequencyResponse));
+      fft::inverse(fft::toComplexVector(idealFrequencyResponse));
 
   vector<double> coefficients;
+  coefficients.reserve(coefficientsCount);
+
   for (int i = coefficientsCount / 2; i >= 1; i--) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
@@ -104,8 +106,10 @@ vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
     paddedCoefficients.push_back(0);
   }
 
-  auto fftResult = fftDirect(toComplexVector(paddedCoefficients));
+  auto fftResult = fft::direct(fft::toComplexVector(paddedCoefficients));
   vector<double> frequencyResponse;
+  frequencyResponse.reserve(toFrequencyHz - fromFrequencyHz);
+
   for (int i = fromFrequencyHz - 1; i < toFrequencyHz; i++) {
     frequencyResponse.push_back(abs(fftResult[i])); // Mod(complex)
   }
@@ -124,8 +128,7 @@ vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
  * @param attenuationDB desired filter attenuation in dB
  * @return frequencies transition length
  */
-int FIRFilter::getTransitionLength(int samplingRate,
-                                   double attenuationDB,
+int FIRFilter::getTransitionLength(int samplingRate, double attenuationDB,
                                    int coefficientsCount) {
   return ceil(attenuationDB * nyquistFrequency(samplingRate) /
               (22 * coefficientsCount));

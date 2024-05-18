@@ -2,12 +2,13 @@
 #define FIR_FILTER_H
 
 #include "../Filter.hpp"
+#include "../FFT.hpp"
 #include "Window.hpp"
 #include <vector>
 
 class FIRFilter : public Filter {
 public:
-  FIRFilter(int cutoffFrequencyHz, int coefficientsCount, const Window &window,
+    FIRFilter(int cutoffFrequencyHz, int coefficientsCount, const Window &window,
             int samplingRateHz);
 
   int getCutoffFrequency() const override;
@@ -16,6 +17,8 @@ public:
   std::vector<double> getFilterCoefficients() const override;
   std::vector<double> calculateResponseDB(int fromFrequencyHz,
                                           int toFrequencyHz) const override;
+
+  std::vector<double> generateIdealFrequencyResponse() const;
 
   static int getOptimalCoefficientsCount(int samplingRate, double attenuationDB,
                                          int transitionLength);
@@ -28,7 +31,6 @@ private:
   const int samplingRateHz;
   std::vector<double> filterCoefficients;
 
-  std::vector<double> generateIdealFrequencyResponse() const;
   std::vector<double> calculateFilterCoefficients(int coefficientsCount) const;
 };
 

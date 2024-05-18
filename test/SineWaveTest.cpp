@@ -32,7 +32,7 @@ void testWaveGeneration(int waveFrequency, int samplingRate, double amplitude) {
     double min = *min_element(wave.begin(), wave.end());
     BOOST_TEST(abs(amplitude - abs(min)) < tolerance);
 
-    auto fftResult = fftDirect(toComplexVector(wave));
+    auto fftResult = fft::direct(fft::toComplexVector(wave));
     int dominantFrequency = 1;
     // skip DC offset bin 0
     for (unsigned int i = 1; i < fftResult.size() / 2; i++) {
