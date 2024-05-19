@@ -80,7 +80,7 @@ signals:
 private:
   int samplingRate = defaultSamplingRate;
   int cutoffFrequency = defaultCutoffFrequency;
-  PassType passType = defaultPassType;
+  FilterPass passType = defaultPassType;
   FilterType filterType = defaultFilterType;
   WindowType windowType = defaultWindowType;
   int attenuationDB = defaultAttenuationDB;

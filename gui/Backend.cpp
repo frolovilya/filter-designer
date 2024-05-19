@@ -269,12 +269,13 @@ void Backend::recalculateCoefficientsAndFrequencyResponse() {
       window = std::unique_ptr<Window>(new RectangularWindow());
     }
 
-    qInfo() << "FIR cutoffFrequency=" << cutoffFrequency
+    qInfo() << "FIR pass=" << toString(passType)
+            << "; cutoffFrequency=" << cutoffFrequency
             << "; filterSize=" << filterSize << "; window=" << toString(windowType)
             << "; samplingRate=" << samplingRate << "\n";
 
     filter = std::unique_ptr<Filter>(
-        new FIRFilter(cutoffFrequency, filterSize, *window, samplingRate));
+        new FIRFilter(passType, cutoffFrequency, filterSize, *window, samplingRate));
   } else {
     RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
     filter = std::unique_ptr<Filter>(new IIRFilter(rcGrid));

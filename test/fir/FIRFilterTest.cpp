@@ -7,19 +7,19 @@ using namespace std;
 BOOST_AUTO_TEST_SUITE(FIRFilter_test)
 
 BOOST_AUTO_TEST_CASE(constructor_test) {
-  BOOST_REQUIRE_THROW(FIRFilter(-1, 100, BlackmanWindow(), 1000),
+    BOOST_REQUIRE_THROW(FIRFilter(FilterPass::lowPass, -1, 100, BlackmanWindow(), 1000),
                       invalid_argument);
-  BOOST_REQUIRE_THROW(FIRFilter(100, -1, BlackmanWindow(), 1000),
+  BOOST_REQUIRE_THROW(FIRFilter(FilterPass::lowPass, 100, -1, BlackmanWindow(), 1000),
                       invalid_argument);
-  BOOST_REQUIRE_THROW(FIRFilter(100, 100, BlackmanWindow(), -1),
+  BOOST_REQUIRE_THROW(FIRFilter(FilterPass::lowPass, 100, 100, BlackmanWindow(), -1),
                       invalid_argument);
-  BOOST_REQUIRE_NO_THROW(FIRFilter(100, 200, BlackmanWindow(), 48000));
+  BOOST_REQUIRE_NO_THROW(FIRFilter(FilterPass::lowPass, 100, 200, BlackmanWindow(), 48000));
 }
 
 void idealFrequencyResponseTest(int cutoffFrequency, int samplingRate,
                                 int filterSize) {
   FIRFilter filter =
-      FIRFilter(cutoffFrequency, filterSize, BlackmanWindow(), samplingRate);
+      FIRFilter(FilterPass::lowPass, cutoffFrequency, filterSize, BlackmanWindow(), samplingRate);
   auto response = filter.generateIdealFrequencyResponse();
 
   // ensure that ideal response is symmetric
@@ -41,7 +41,7 @@ void testFrequencyResponse(int cutoffFrequency, int samplingRate,
   //      << ", samplingRate=" << samplingRate
   //      << ", filterSize=" << filterSize << "\n";
   FIRFilter filter =
-      FIRFilter(cutoffFrequency, filterSize, BlackmanWindow(), samplingRate);
+      FIRFilter(FilterPass::lowPass, cutoffFrequency, filterSize, BlackmanWindow(), samplingRate);
 
   auto coefficients = filter.getFilterCoefficients();
   BOOST_TEST(coefficients.size() == filterSize);

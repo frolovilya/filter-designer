@@ -7,7 +7,7 @@ class SineWave {
 public:
   explicit SineWave(int samplingRateHz);
   
-  std::vector<double> generatePeriod(int frequency, double amplitude) const;
+  std::vector<double> generatePeriod(int frequency, double amplitude, double phaseShift = 0) const;
 
 private:
   const int samplingRateHz;

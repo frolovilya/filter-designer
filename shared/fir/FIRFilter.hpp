@@ -2,14 +2,14 @@
 #define FIR_FILTER_H
 
 #include "../Filter.hpp"
-#include "../FFT.hpp"
+#include "../FilterPass.hpp"
 #include "Window.hpp"
 #include <vector>
 
 class FIRFilter : public Filter {
 public:
-    FIRFilter(int cutoffFrequencyHz, int coefficientsCount, const Window &window,
-            int samplingRateHz);
+  FIRFilter(FilterPass passType, int cutoffFrequencyHz, int coefficientsCount,
+            const Window &window, int samplingRateHz);
 
   int getCutoffFrequency() const override;
   int getSamplingRate() const override;
@@ -26,11 +26,14 @@ public:
                                  int coefficientsCount);
 
 private:
+  const FilterPass passType;
   const int cutoffFrequencyHz;
   const Window &window;
   const int samplingRateHz;
   std::vector<double> filterCoefficients;
 
+  std::vector<double> shiftFilterCoefficients(
+      const std::vector<double> &unshiftedCoefficients) const;
   std::vector<double> calculateFilterCoefficients(int coefficientsCount) const;
 };
 

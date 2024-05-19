@@ -39,11 +39,11 @@ FilterType toFilterType(std::string str) {
     return toValue<FilterType>(str, filterTypes, sizeof(filterTypes) / sizeof(filterTypes[0]));
 }
 
-std::string toString(PassType value) {
+std::string toString(FilterPass value) {
     return toString(value, passTypes, sizeof(passTypes) / sizeof(passTypes[0]));
 }
 
-PassType toPassType(std::string str) {
-    return toValue<PassType>(str, passTypes, sizeof(passTypes) / sizeof(passTypes[0]));
+FilterPass toPassType(std::string str) {
+    return toValue<FilterPass>(str, passTypes, sizeof(passTypes) / sizeof(passTypes[0]));
 }
 

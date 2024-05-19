@@ -2,6 +2,7 @@
 #define LISTSELECTORVALUES_H
 
 #include <string>
+#include "../shared/FilterPass.hpp"
 
 enum class WindowType { blackman, rectangular };
 
@@ -24,15 +25,13 @@ const struct {
 std::string toString(FilterType t);
 FilterType toFilterType(std::string str);
 
-enum class PassType { lowPass, highPass };
-
 const struct {
-  PassType val;
+  FilterPass val;
   std::string str;
-} passTypes[] = {{PassType::lowPass, "Low Pass"},
-                 {PassType::highPass, "High Pass"}};
+} passTypes[] = {{FilterPass::lowPass, "Low Pass"},
+                 {FilterPass::highPass, "High Pass"}};
 
-std::string toString(PassType t);
-PassType toPassType(std::string str);
+std::string toString(FilterPass t);
+FilterPass toPassType(std::string str);
 
 #endif // LISTSELECTORVALUES_H

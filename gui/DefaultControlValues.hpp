@@ -20,7 +20,7 @@ constexpr int defaultFilterSize = 200;
 constexpr ValueRange defaultFilterSizeRange{2, 10000};
 constexpr bool defaultUseOptimalFilterSize = true;
 
-constexpr PassType defaultPassType = PassType::lowPass;
+constexpr FilterPass defaultPassType = FilterPass::lowPass;
 
 constexpr FilterType defaultFilterType = FilterType::fir;
 
