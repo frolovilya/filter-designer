@@ -9,23 +9,25 @@ using namespace std;
 /**
  * Finite Impulse Response filter
  */
-FIRFilter::FIRFilter(FilterPass passType, int cutoffFrequencyHz,
+FIRFilter::FIRFilter(FilterPass passType, int cutoffFrequency,
                      int coefficientsCount, const Window &window,
-                     int samplingRateHz)
-    : passType{passType}, cutoffFrequencyHz{cutoffFrequencyHz}, window{window},
-      samplingRateHz{samplingRateHz} {
-  if (cutoffFrequencyHz < 1) {
-    throw invalid_argument("FIRFilter: cutoffFrequencyHz must be >= 1");
+                     int samplingRate)
+    : passType{passType}, cutoffFrequency{cutoffFrequency}, window{window},
+      samplingRate{samplingRate} {
+  if (cutoffFrequency < 1) {
+    throw invalid_argument("FIRFilter: cutoffFrequency must be >= 1");
   }
-  if (samplingRateHz < 1) {
-    throw invalid_argument("FIRFilter: samplingRateHz must be >= 1");
+  if (samplingRate < 1) {
+    throw invalid_argument("FIRFilter: samplingRate must be >= 1");
   }
   filterCoefficients = calculateFilterCoefficients(coefficientsCount);
 }
 
-int FIRFilter::getCutoffFrequency() const { return cutoffFrequencyHz; }
+int FIRFilter::getCutoffFrequency() const { return cutoffFrequency; }
 
-int FIRFilter::getSamplingRate() const { return samplingRateHz; }
+FilterPass FIRFilter::getPassType() const { return passType; }
+
+int FIRFilter::getSamplingRate() const { return samplingRate; }
 
 vector<double> FIRFilter::getFilterCoefficients() const {
   return filterCoefficients;
@@ -39,20 +41,21 @@ vector<double> FIRFilter::getFilterCoefficients() const {
  */
 vector<double> FIRFilter::generateIdealFrequencyResponse() const {
   vector<double> response;
-  response.reserve(samplingRateHz);
+  response.reserve(samplingRate);
 
-  // Use low-pass symmetric response to model all type of filters.
-  // Fow a high pass filter, cutoffFreuquency is from the "right side" of the
-  // frequency response.
+  // Using low-pass symmetric response to model all type of filters.
+  // So that for a high pass filter need to calculate low pass with
+  // modellingCutoffFrequency = samplingRate/2 - cutoffFrequency
+  // to then shift the coefficients.
   const int modellingLowPassCutoffFrequency =
       passType == FilterPass::lowPass
-          ? cutoffFrequencyHz
-          : nyquistFrequency(samplingRateHz) - cutoffFrequencyHz;
+          ? cutoffFrequency
+          : nyquistFrequency(samplingRate) - cutoffFrequency;
 
-  for (int i = 0; i < samplingRateHz; i++) {
+  for (int i = 0; i < samplingRate; i++) {
     response.push_back(
         (i < modellingLowPassCutoffFrequency) ||
-                (i >= samplingRateHz - modellingLowPassCutoffFrequency)
+                (i >= samplingRate - modellingLowPassCutoffFrequency)
             ? 1
             : 0);
   }
@@ -81,12 +84,20 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
   vector<double> coefficients;
   coefficients.reserve(coefficientsCount);
 
-  // since frequency response is symmetrical starting from samplingRate / 2
-  // concat the right side to the left side to get filter coefficients
-  for (int i = coefficientsCount / 2; i >= 1; i--) {
+  // Since frequency response is symmetrical starting from samplingRate / 2,
+  // concat the right side to the left side to get filter coefficients.
+  // Skip 0 and last bins with DC values.
+  //
+  // If event coefficients count, then take equal number Ne=coefficientsCount/2
+  // of values from each side.
+  // If odd coefficients count, then No=Ne-1. Take No+1 from the left side and
+  // No from the right side.
+  const bool isEvenCount = coefficientsCount % 2 == 0;
+  for (unsigned int i = filterTimeDomain.size() - coefficientsCount / 2 - 1;
+       i < filterTimeDomain.size() - 1; i++) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
-  for (int i = 1; i < coefficientsCount / 2 + 1; i++) {
+  for (int i = 1; i <= coefficientsCount / 2 + (isEvenCount ? 0 : 1); i++) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
 
@@ -116,10 +127,10 @@ vector<double> FIRFilter::shiftFilterCoefficients(
   vector<double> shiftedCoefficients(unshiftedCoefficients);
 
   if (passType == FilterPass::highPass) {
-    SineWave sine = SineWave(samplingRateHz);
+    SineWave sine = SineWave(samplingRate);
     // shift to Pi/4 to sample only high and low values, otherwise wave starts
     // from 0
-    auto period = sine.generatePeriod(samplingRateHz / 2, 1, M_PI / 4);
+    auto period = sine.generatePeriod(samplingRate / 2, 1, M_PI / 4);
 
     for (unsigned int i = 0; i < shiftedCoefficients.size(); i++) {
       shiftedCoefficients[i] *= period[i % period.size()];
@@ -130,33 +141,24 @@ vector<double> FIRFilter::shiftFilterCoefficients(
 }
 
 /**
- * Calculate FIR filter frequency response
+ * Calculate FIR filter frequency response from 1 to samplingRate / 2
  *
- * @param fromFrequencyHz start frequency
- * @param toFrequencyHz end frequency
- * @return magnitudes (dB) for each frequency from fromFrequencyHz (index 0) to
- * toFrequencyHz
+ * @return magnitudes (dB) for each frequency
  */
-vector<double> FIRFilter::calculateResponseDB(int fromFrequencyHz,
-                                              int toFrequencyHz) const {
-  if (fromFrequencyHz < 1) {
-    throw invalid_argument("calculateResponseDb: fromFrequencyHz must be >= 1");
-  }
-  if (toFrequencyHz <= fromFrequencyHz) {
-    throw invalid_argument(
-        "calculateResponseDb: toFrequencyHz must be > fromFrequencyHz");
-  }
+vector<double> FIRFilter::calculateResponseDB() const {
+  const int fromFrequency = 1;
+  const int toFrequency = nyquistFrequency(samplingRate);
 
   vector<double> paddedCoefficients(filterCoefficients);
-  for (int i = filterCoefficients.size(); i < samplingRateHz; i++) {
+  for (int i = filterCoefficients.size(); i < samplingRate; i++) {
     paddedCoefficients.push_back(0);
   }
 
   auto fftResult = fft::direct(fft::toComplexVector(paddedCoefficients));
   vector<double> frequencyResponse;
-  frequencyResponse.reserve(toFrequencyHz - fromFrequencyHz);
+  frequencyResponse.reserve(toFrequency - fromFrequency);
 
-  for (int i = fromFrequencyHz - 1; i < toFrequencyHz; i++) {
+  for (int i = fromFrequency - 1; i < toFrequency; i++) {
     frequencyResponse.push_back(abs(fftResult[i])); // Mod(complex)
   }
   frequencyResponse = normalize(frequencyResponse);

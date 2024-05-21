@@ -13,8 +13,7 @@ public:
   int getCutoffFrequency() const override;
   int getSamplingRate() const override;
   std::vector<double> getFilterCoefficients() const override;
-  std::vector<double> calculateResponseDB(int fromFrequencyHz,
-                                          int toFrequencyHz) const override;
+  std::vector<double> calculateResponseDB() const override;
 
 private:
   const RCGrid &rcGrid;

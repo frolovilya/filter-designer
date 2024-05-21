@@ -30,30 +30,17 @@ vector<double> IIRFilter::getFilterCoefficients() const {
 }
 
 /**
- * Calculate IIR filter frequency response
+ * Calculate IIR filter frequency response from 1 to samplingRate / 2
  *
- * @param fromFrequencyHz start frequency
- * @param toFrequencyHz end frequency
- * @return magnitudes (dB) for each frequency from fromFrequencyHz (index 0) to
- * toFrequencyHz
+ * @return magnitudes (dB) for each frequency
  */
-vector<double> IIRFilter::calculateResponseDB(const int fromFrequencyHz,
-                                              const int toFrequencyHz) const {
-  if (fromFrequencyHz < 1) {
-    throw invalid_argument("calculateResponseDb: fromFrequencyHz must be >= 1");
-  }
-  if (toFrequencyHz <= fromFrequencyHz) {
-    throw invalid_argument(
-        "calculateResponseDb: toFrequencyHz must be > fromFrequencyHz");
-  }
-  if (toFrequencyHz > nyquistFrequency(rcGrid.getSamplingRate())) {
-    throw invalid_argument("calculateResponseDb: toFrequencyHz must be < "
-                           "samplingRate / 2 (Nyquist frequency)");
-  }
+vector<double> IIRFilter::calculateResponseDB() const {
+  const int fromFrequency = 1;
+  const int toFrequency = nyquistFrequency(getSamplingRate());
 
   vector<double> frequencyResponse;
-  auto sine = SineWave(rcGrid.getSamplingRate());
-  for (int frequency = fromFrequencyHz; frequency < toFrequencyHz;
+  auto sine = SineWave(getSamplingRate());
+  for (int frequency = fromFrequency; frequency < toFrequency;
        frequency++) {
     auto samples = sine.generatePeriod(frequency, 1);
     auto filteredSamples = apply(std::move(samples));

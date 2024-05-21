@@ -6,29 +6,30 @@ using namespace std;
 
 BOOST_AUTO_TEST_SUITE(IIRFilter_test)
 
-void testFrequencyResponse(int cutoffFrequency, int samplingRate, int maxResponseFrequency) {
-    RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
-    IIRFilter filter = IIRFilter(rcGrid);
+void testFrequencyResponse(int cutoffFrequency, int samplingRate) {
+  cout << "IIR Response"
+       << ", cutoff=" << cutoffFrequency << ", samplingRate=" << samplingRate
+       << "\n";
 
-    auto filterResponse = filter.calculateResponseDB(1, maxResponseFrequency);
-    // for IIR expecting magnitude at cutoffFrequency at least < 0
-    BOOST_TEST(filterResponse[cutoffFrequency] < 0);
+  RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
+  IIRFilter filter = IIRFilter(rcGrid);
 
-    for (const double& magnitude : filterResponse) {
-        BOOST_TEST(isfinite(magnitude));
-    }
-}
+  auto filterResponse = filter.calculateResponseDB();
+  // for IIR expecting magnitude at cutoffFrequency at least < 0
+  BOOST_TEST(filterResponse[cutoffFrequency] < 0);
 
-BOOST_AUTO_TEST_CASE(wrong_max_response_frequency_test) {
-  BOOST_REQUIRE_THROW(testFrequencyResponse(100, 1000, 2000), invalid_argument);
+  // ensure there're no NaN or Inf in response
+  for (const double &magnitude : filterResponse) {
+    BOOST_TEST(isfinite(magnitude));
+  }
 }
 
 BOOST_AUTO_TEST_CASE(response_test) {
-  testFrequencyResponse(100, 1000, 500);
-  testFrequencyResponse(2000, 10000, 5000);
-  testFrequencyResponse(5000, 20000, 10000);
-  testFrequencyResponse(10000, 40000, 20000);
-  testFrequencyResponse(20000, 100000, 30000);
+  testFrequencyResponse(100, 1000);
+  testFrequencyResponse(2000, 10000);
+  testFrequencyResponse(5000, 20000);
+  testFrequencyResponse(10000, 40000);
+  testFrequencyResponse(20000, 100000);
 }
 
 BOOST_AUTO_TEST_SUITE_END()

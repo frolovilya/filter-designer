@@ -283,8 +283,7 @@ void Backend::recalculateCoefficientsAndFrequencyResponse() {
 
   coefficients = filter->getFilterCoefficients();
 
-  frequencyResponse =
-      filter->calculateResponseDB(1, nyquistFrequency(samplingRate));
+  frequencyResponse = filter->calculateResponseDB();
 
   emit calculationCompleted();
 }

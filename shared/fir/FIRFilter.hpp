@@ -8,15 +8,15 @@
 
 class FIRFilter : public Filter {
 public:
-  FIRFilter(FilterPass passType, int cutoffFrequencyHz, int coefficientsCount,
-            const Window &window, int samplingRateHz);
+  FIRFilter(FilterPass passType, int cutoffFrequency, int coefficientsCount,
+            const Window &window, int samplingRate);
 
   int getCutoffFrequency() const override;
+  FilterPass getPassType() const;
   int getSamplingRate() const override;
 
   std::vector<double> getFilterCoefficients() const override;
-  std::vector<double> calculateResponseDB(int fromFrequencyHz,
-                                          int toFrequencyHz) const override;
+  std::vector<double> calculateResponseDB() const override;
 
   std::vector<double> generateIdealFrequencyResponse() const;
 
@@ -27,9 +27,9 @@ public:
 
 private:
   const FilterPass passType;
-  const int cutoffFrequencyHz;
+  const int cutoffFrequency;
   const Window &window;
-  const int samplingRateHz;
+  const int samplingRate;
   std::vector<double> filterCoefficients;
 
   std::vector<double> shiftFilterCoefficients(
