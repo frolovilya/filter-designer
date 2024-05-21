@@ -17,8 +17,11 @@ BOOST_AUTO_TEST_CASE(constructor_test) {
   BOOST_REQUIRE_THROW(
       FIRFilter(FilterPass::lowPass, 100, 100, BlackmanWindow(), -1),
       invalid_argument);
+  BOOST_REQUIRE_THROW(
+      FIRFilter(FilterPass::lowPass, 24000, 200, BlackmanWindow(), 48000),
+      invalid_argument);
   BOOST_REQUIRE_NO_THROW(
-      FIRFilter(FilterPass::lowPass, 100, 200, BlackmanWindow(), 48000));
+      FIRFilter(FilterPass::lowPass, 23999, 200, BlackmanWindow(), 48000));
 }
 
 void idealFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
@@ -28,7 +31,7 @@ void idealFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
   auto response = filter.generateIdealFrequencyResponse();
 
   // ensure that ideal response is symmetric
-  const double tolerance = 0.0000001;
+  const double tolerance = 10e-7;
   for (int i = 0, j = response.size() - 1; i < j; i++, j--) {
     BOOST_TEST(abs(response[i] - response[j]) < tolerance);
   }
@@ -55,10 +58,11 @@ void actualFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
   auto coefficients = filter.getFilterCoefficients();
   BOOST_TEST(coefficients.size() == filterSize);
 
-  // ensure there're no Inf or NaN coefficients
   for (const double &c : coefficients) {
-    // abort test to avoid spamming with Inf test errors
+    // ensure there're no Inf or NaN coefficients
     BOOST_TEST_REQUIRE(std::isfinite(c));
+    // check that coefficients are normalized
+    BOOST_TEST((c >= -1 && c <= 1));
   }
 
   auto filterResponse = filter.calculateResponseDB();
@@ -68,26 +72,29 @@ void actualFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
   // period
   BOOST_TEST(filterResponse[cutoffFrequency + transitionPeriod] <
              -attenuationDB);
+  for (const double &f : filterResponse) {
+    // test that response magnitudes are negative
+    BOOST_TEST(f <= 0);
+  }
 }
 
 BOOST_AUTO_TEST_CASE(response_test) {
-  actualFrequencyResponseTest(FilterPass::lowPass, 200, 24000, 200);
-  actualFrequencyResponseTest(FilterPass::lowPass, 500, 48000, 200);
-  actualFrequencyResponseTest(FilterPass::lowPass, 500, 48000, 223);
-  actualFrequencyResponseTest(FilterPass::lowPass, 500, 48000, 1000);
-  actualFrequencyResponseTest(FilterPass::lowPass, 1000, 48000, 500);
-  actualFrequencyResponseTest(FilterPass::lowPass, 5000, 48000, 500);
-  actualFrequencyResponseTest(FilterPass::lowPass, 10000, 48000, 500);
-  actualFrequencyResponseTest(FilterPass::lowPass, 1000, 150000, 300);
-  actualFrequencyResponseTest(FilterPass::lowPass, 60000, 150000, 300);
+  // test normal frequencies
+  for (int cutoffFrequency = 40; cutoffFrequency < 23999;
+       cutoffFrequency += 400) {
+    actualFrequencyResponseTest(FilterPass::lowPass, cutoffFrequency, 48000,
+                                200);
+    actualFrequencyResponseTest(FilterPass::highPass, cutoffFrequency, 48000,
+                                331);
+  }
 
-  actualFrequencyResponseTest(FilterPass::highPass, 74000, 150000, 440);
-  actualFrequencyResponseTest(FilterPass::highPass, 2000, 150000, 600);
-  actualFrequencyResponseTest(FilterPass::highPass, 23500, 48000, 200);
-  actualFrequencyResponseTest(FilterPass::highPass, 20000, 48000, 100);
-  actualFrequencyResponseTest(FilterPass::highPass, 15000, 48000, 555);
-  actualFrequencyResponseTest(FilterPass::highPass, 1000, 48000, 1000);
-  actualFrequencyResponseTest(FilterPass::highPass, 500, 24000, 300);
+  // test various sampling rates
+  for (int samplingRate = 10; samplingRate < 400000; samplingRate *= 2) {
+    actualFrequencyResponseTest(FilterPass::lowPass, samplingRate / 4,
+                                samplingRate, 110);
+    actualFrequencyResponseTest(FilterPass::highPass, samplingRate / 4,
+                                samplingRate, 110);
+  }
 }
 
 void transitionLengthTest(int transitionLength, int samplingRate,

@@ -9,7 +9,8 @@ BOOST_AUTO_TEST_CASE(constructor_test) {
   BOOST_REQUIRE_THROW(RCGrid(-1, 100), invalid_argument);
   BOOST_REQUIRE_THROW(RCGrid(100, -1), invalid_argument);
   BOOST_REQUIRE_THROW(RCGrid(100, -1), invalid_argument);
-  BOOST_REQUIRE_NO_THROW(RCGrid(100, 200));
+  BOOST_REQUIRE_THROW(RCGrid(100, 200), invalid_argument);
+  BOOST_REQUIRE_NO_THROW(RCGrid(99, 200));
 }
 
 void testCoefficients(int cutoffFrequency, int samplingRate) {

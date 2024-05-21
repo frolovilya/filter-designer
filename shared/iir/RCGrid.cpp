@@ -1,4 +1,5 @@
 #include "RCGrid.hpp"
+#include "../Sampling.hpp"
 #include <cmath>
 #include <stdexcept>
 
@@ -13,21 +14,25 @@ using namespace std;
  *           |
  *           g
  */
-RCGrid::RCGrid(const int cutoffFrequencyHz, const int samplingRateHz)
-    : cutoffFrequencyHz{cutoffFrequencyHz}, samplingRateHz{samplingRateHz},
+RCGrid::RCGrid(const int cutoffFrequency, const int samplingRate)
+    : cutoffFrequency{cutoffFrequency}, samplingRate{samplingRate},
       coefficients{
-          calculateIIRFilterCoefficients(cutoffFrequencyHz, samplingRateHz)} {
-  if (cutoffFrequencyHz < 1) {
-    throw invalid_argument("RCGrid: cutoffFrequencyHz must be >= 1");
+          calculateIIRFilterCoefficients(cutoffFrequency, samplingRate)} {
+  if (cutoffFrequency < 1) {
+    throw invalid_argument("RCGrid: cutoffFrequency must be >= 1");
   }
-  if (samplingRateHz < 1) {
-    throw invalid_argument("RCGrid: samplingRateHz must be >= 1");
+  if (samplingRate < 1) {
+    throw invalid_argument("RCGrid: samplingRate must be >= 1");
+  }
+  if (cutoffFrequency >= nyquistFrequency(samplingRate)) {
+      throw invalid_argument("RCGrid: cutoffFrequency must be < "
+                             "samplingRate/2 (Nyquist frequency");
   }
 }
 
-int RCGrid::getCutoffFrequency() const { return cutoffFrequencyHz; }
+int RCGrid::getCutoffFrequency() const { return cutoffFrequency; }
 
-int RCGrid::getSamplingRate() const { return samplingRateHz; }
+int RCGrid::getSamplingRate() const { return samplingRate; }
 
 IIRFilterCoefficients RCGrid::getIIRFilterCoefficients() const {
   return coefficients;
@@ -36,38 +41,38 @@ IIRFilterCoefficients RCGrid::getIIRFilterCoefficients() const {
 /**
  * Calculate RC constant to be used for IIR coefficients calculation
  *
- * @param frequencyHz desired cutoff frequency (must be >= 1) to achieve -3dB
+ * @param frequency desired cutoff frequency (must be >= 1) to achieve -3dB
  * attenuation
  * @return calculated RC constant
  */
-double RCGrid::calculateRCConstant(const int frequencyHz) const {
-  if (frequencyHz < 1) {
-    throw invalid_argument("calculateRCConstant: frequencyHz must be >= 1");
+double RCGrid::calculateRCConstant(const int frequency) const {
+  if (frequency < 1) {
+    throw invalid_argument("calculateRCConstant: frequency must be >= 1");
   }
   /*
-  R = 1 / (2 * pi * frequencyHz * C)
-  RC = 1 / (2 * pi * frequencyHz)
+  R = 1 / (2 * pi * frequency * C)
+  RC = 1 / (2 * pi * frequency)
   */
-  return 1 / (2 * M_PI * frequencyHz);
+  return 1 / (2 * M_PI * frequency);
 }
 
 /**
  * Calcuate IIR filter coefficients
  *
- * @param cutoffFrequencyHz cutoffFrequency (must be >= 1)
- * @param samplingRateHz
+ * @param cutoffFrequency cutoffFrequency (must be >= 1)
+ * @param samplingRate
  * @return IIR filter coefficients
  */
 IIRFilterCoefficients
-RCGrid::calculateIIRFilterCoefficients(const int cutoffFrequencyHz,
-                                       const int samplingRateHz) const {
-  if (cutoffFrequencyHz < 1) {
+RCGrid::calculateIIRFilterCoefficients(const int cutoffFrequency,
+                                       const int samplingRate) const {
+  if (cutoffFrequency < 1) {
     throw invalid_argument(
-        "calculateIIRFilterCoefficients: cutoffFrequencyHz must be >= 1");
+        "calculateIIRFilterCoefficients: cutoffFrequency must be >= 1");
   }
-  if (samplingRateHz < 1) {
+  if (samplingRate < 1) {
     throw invalid_argument(
-        "calculateIIRFilterCoefficients: samplingRateHz must be >= 1");
+        "calculateIIRFilterCoefficients: samplingRate must be >= 1");
   }
   /*
   Resistance:
@@ -93,8 +98,8 @@ RCGrid::calculateIIRFilterCoefficients(const int cutoffFrequencyHz,
   B = RC / (T + RC)
   */
 
-  const double samplingTime{1 / (double)samplingRateHz};
-  const double rcConstant{calculateRCConstant(cutoffFrequencyHz)};
+  const double samplingTime{1 / (double)samplingRate};
+  const double rcConstant{calculateRCConstant(cutoffFrequency)};
 
   IIRFilterCoefficients coefficients(samplingTime / (samplingTime + rcConstant),
                                      rcConstant / (samplingTime + rcConstant));

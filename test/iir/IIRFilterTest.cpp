@@ -1,6 +1,5 @@
 #include "../../shared/iir/IIRFilter.hpp"
 #include <boost/test/unit_test.hpp>
-#include <cmath>
 
 using namespace std;
 
@@ -18,9 +17,9 @@ void testFrequencyResponse(int cutoffFrequency, int samplingRate) {
   // for IIR expecting magnitude at cutoffFrequency at least < 0
   BOOST_TEST(filterResponse[cutoffFrequency] < 0);
 
-  // ensure there're no NaN or Inf in response
+  // test that response magnitudes are negative
   for (const double &magnitude : filterResponse) {
-    BOOST_TEST(isfinite(magnitude));
+    BOOST_TEST(magnitude <= 0);
   }
 }
 

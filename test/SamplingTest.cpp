@@ -36,6 +36,8 @@ BOOST_AUTO_TEST_CASE(normalize_test) {
 }
 
 BOOST_AUTO_TEST_CASE(toDB_test) {
+  BOOST_TEST(toDB(0) == -std::numeric_limits<double>::infinity());
+  BOOST_TEST(toDB(0.0001) == -80);
   BOOST_TEST(toDB(0.001) == -60);
   BOOST_TEST(toDB(0.01) == -40);
   BOOST_TEST(toDB(0.1) == -20);

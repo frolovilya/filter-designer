@@ -46,7 +46,7 @@ int Backend::getCutoffFrequencyRangeFrom() const {
 }
 int Backend::getCutoffFrequencyRangeTo() const {
   return std::min(defaultCutoffFrequencyRange.to,
-                  nyquistFrequency(samplingRate));
+                  nyquistFrequency(samplingRate) - 1);
 }
 void Backend::setCutoffFrequency(int value) {
   if (value == cutoffFrequency) {
@@ -68,12 +68,12 @@ QString Backend::getPassType() const {
   return QString::fromStdString(toString(passType));
 }
 QList<QString> Backend::getPassTypes() const {
-    QList<QString> values;
-    for (unsigned int i = 0; i < sizeof(passTypes) / sizeof(passTypes[0]); i++) {
-        values.push_back(QString::fromStdString(passTypes[i].str));
-    }
+  QList<QString> values;
+  for (unsigned int i = 0; i < sizeof(passTypes) / sizeof(passTypes[0]); i++) {
+    values.push_back(QString::fromStdString(passTypes[i].str));
+  }
 
-    return values;
+  return values;
 }
 void Backend::setPassType(QString value) {
   if (value.toStdString() == toString(passType)) {
@@ -89,12 +89,13 @@ QString Backend::getFilterType() const {
   return QString::fromStdString(toString(filterType));
 }
 QList<QString> Backend::getFilterTypes() const {
-    QList<QString> values;
-    for (unsigned int i = 0; i < sizeof(filterTypes) / sizeof(filterTypes[0]); i++) {
-        values.push_back(QString::fromStdString(filterTypes[i].str));
-    }
+  QList<QString> values;
+  for (unsigned int i = 0; i < sizeof(filterTypes) / sizeof(filterTypes[0]);
+       i++) {
+    values.push_back(QString::fromStdString(filterTypes[i].str));
+  }
 
-    return values;
+  return values;
 }
 void Backend::setFilterType(QString value) {
   if (value.toStdString() == toString(filterType)) {
@@ -110,12 +111,13 @@ QString Backend::getWindowType() const {
   return QString::fromStdString(toString(windowType));
 }
 QList<QString> Backend::getWindowTypes() const {
-    QList<QString> values;
-    for (unsigned int i = 0; i < sizeof(windowTypes) / sizeof(windowTypes[0]); i++) {
-        values.push_back(QString::fromStdString(windowTypes[i].str));
-    }
+  QList<QString> values;
+  for (unsigned int i = 0; i < sizeof(windowTypes) / sizeof(windowTypes[0]);
+       i++) {
+    values.push_back(QString::fromStdString(windowTypes[i].str));
+  }
 
-    return values;
+  return values;
 }
 void Backend::setWindowType(QString value) {
   if (value.toStdString() == toString(windowType)) {
@@ -225,8 +227,14 @@ double Backend::getCoefficientsMaxValue() const {
 }
 
 double Backend::getFrequencyResponseMinValue() const {
-  return *std::min_element(frequencyResponse.begin() + visibleFrequencyFrom - 1,
-                           frequencyResponse.begin() + visibleFrequencyTo - 1);
+  double minElement = 0;
+  for (auto iter = frequencyResponse.begin() + visibleFrequencyFrom - 1;
+       iter < frequencyResponse.begin() + visibleFrequencyTo - 1; iter++) {
+      if (std::isfinite(*iter) && *iter < minElement) {
+          minElement = *iter;
+      }
+  }
+  return minElement;
 }
 double Backend::getFrequencyResponseMaxValue() const {
   return *std::max_element(frequencyResponse.begin() + visibleFrequencyFrom - 1,
@@ -271,11 +279,12 @@ void Backend::recalculateCoefficientsAndFrequencyResponse() {
 
     qInfo() << "FIR pass=" << toString(passType)
             << "; cutoffFrequency=" << cutoffFrequency
-            << "; filterSize=" << filterSize << "; window=" << toString(windowType)
+            << "; filterSize=" << filterSize
+            << "; window=" << toString(windowType)
             << "; samplingRate=" << samplingRate << "\n";
 
-    filter = std::unique_ptr<Filter>(
-        new FIRFilter(passType, cutoffFrequency, filterSize, *window, samplingRate));
+    filter = std::unique_ptr<Filter>(new FIRFilter(
+        passType, cutoffFrequency, filterSize, *window, samplingRate));
   } else {
     RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
     filter = std::unique_ptr<Filter>(new IIRFilter(rcGrid));

@@ -28,18 +28,18 @@ double maxAbsValue(const std::vector<double> &samples) {
 }
 
 /**
- * Normalize samples to [0..1] range
+ * Normalize values to [0..1] range
  *
- * @param samples reference to a vector with samples to normalize
+ * @param values reference to a vector with values to normalize
  * @return vector with normalized values
  */
-std::vector<double> normalize(const std::vector<double> &samples) {
-  double maxValue = maxAbsValue(samples);
+std::vector<double> normalize(const std::vector<double> &values) {
+  double maxValue = maxAbsValue(values);
 
   std::vector<double> normalized;
-  normalized.reserve(samples.size());
-  for (const double &sample : samples) {
-    normalized.push_back(sample / maxValue);
+  normalized.reserve(values.size());
+  for (const double &v : values) {
+    normalized.push_back(v / maxValue);
   }
 
   return normalized;

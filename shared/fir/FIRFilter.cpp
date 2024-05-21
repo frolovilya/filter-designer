@@ -20,6 +20,10 @@ FIRFilter::FIRFilter(FilterPass passType, int cutoffFrequency,
   if (samplingRate < 1) {
     throw invalid_argument("FIRFilter: samplingRate must be >= 1");
   }
+  if (cutoffFrequency >= nyquistFrequency(samplingRate)) {
+    throw invalid_argument("FIRFilter: cutoffFrequency must be < "
+                           "samplingRate/2 (Nyquist frequency");
+  }
   filterCoefficients = calculateFilterCoefficients(coefficientsCount);
 }
 
@@ -68,7 +72,7 @@ vector<double> FIRFilter::generateIdealFrequencyResponse() const {
  * Coefficients must be convolved with an input sample buffer.
  *
  * @param coefficientsCount target number of coefficients
- * @return filter coefficients with applied window
+ * @return normalized [-1, 1] filter coefficients with applied window
  */
 vector<double>
 FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
@@ -85,16 +89,11 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
   coefficients.reserve(coefficientsCount);
 
   // Since frequency response is symmetrical starting from samplingRate / 2,
-  // concat the right side to the left side to get filter coefficients.
-  // Skip 0 and last bins with DC values.
-  //
-  // If event coefficients count, then take equal number Ne=coefficientsCount/2
-  // of values from each side.
-  // If odd coefficients count, then No=Ne-1. Take No+1 from the left side and
-  // No from the right side.
+  // mirror and concat first [1..coefficientsCount/2] values to get required
+  // filter coefficients. Skip 0 bin with DC value.
   const bool isEvenCount = coefficientsCount % 2 == 0;
-  for (unsigned int i = filterTimeDomain.size() - coefficientsCount / 2 - 1;
-       i < filterTimeDomain.size() - 1; i++) {
+
+  for (int i = coefficientsCount / 2; i >= 1; i--) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
   for (int i = 1; i <= coefficientsCount / 2 + (isEvenCount ? 0 : 1); i++) {
@@ -119,7 +118,8 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
  * This is achieved by multiplying each filter coefficient by sine wave sampled
  * at f/2 frequency.
  *
- * @return
+ * @return low-pass filter coefficients with applied shift to model high or band
+ * pass filters
  */
 vector<double> FIRFilter::shiftFilterCoefficients(
     const vector<double> &unshiftedCoefficients) const {
@@ -143,7 +143,7 @@ vector<double> FIRFilter::shiftFilterCoefficients(
 /**
  * Calculate FIR filter frequency response from 1 to samplingRate / 2
  *
- * @return magnitudes (dB) for each frequency
+ * @return magnitudes (dB) for each frequency [-Inf, 0]
  */
 vector<double> FIRFilter::calculateResponseDB() const {
   const int fromFrequency = 1;

@@ -179,7 +179,6 @@ ColumnLayout {
                 value: backend.getFilterSize()
                 onValueChanged: backend.setFilterSize(value)
             }
-
         }
     }
 
@@ -236,7 +235,8 @@ ColumnLayout {
                     palette.button: "dimgray"
                     onClicked: {
                         backend.setVisibleFrequencyFrom(1)
-                        backend.setVisibleFrequencyTo(backend.getSamplingRate() / 2)
+                        backend.setVisibleFrequencyTo(
+                                    backend.getSamplingRate() / 2)
                     }
                 }
 
@@ -248,11 +248,19 @@ ColumnLayout {
                     text: "Cutoff x4"
                     palette.button: "dimgray"
                     onClicked: {
-                        backend.setVisibleFrequencyFrom(1)
-                        backend.setVisibleFrequencyTo(backend.getCutoffFrequency() * 4)
+                        if (backend.getPassType() === "Low Pass") {
+                            backend.setVisibleFrequencyFrom(1)
+                            backend.setVisibleFrequencyTo(
+                                        backend.getCutoffFrequency() * 4)
+                        } else if (backend.getPassType() === "High Pass") {
+                            backend.setVisibleFrequencyFrom(
+                                        backend.getSamplingRate() / 2
+                                        - (backend.getSamplingRate() / 2 - backend.getCutoffFrequency()) * 4)
+                            backend.setVisibleFrequencyTo(
+                                        backend.getSamplingRate() / 2)
+                        }
                     }
                 }
-
             }
         }
     }

@@ -81,23 +81,35 @@ ChartView {
     }
 
     function updateBandLineSeries() {
+        var startPassFrequency = 0
+        var endPassFrequency = backend.getCutoffFrequency()
+        if (backend.getPassType() === "High Pass") {
+            startPassFrequency = backend.getCutoffFrequency()
+            endPassFrequency = backend.getCutoffFrequencyRangeTo()
+        }
+
         passBand.upperSeries = createBandLineSeries(
-                    0, backend.getCutoffFrequency(),
+                    startPassFrequency, endPassFrequency,
                     backend.getFrequencyResponseMaxValue(),
                     passBand)
         passBand.lowerSeries = createBandLineSeries(
-                    0, backend.getCutoffFrequency(),
+                    startPassFrequency, endPassFrequency,
                     backend.getFrequencyResponseMinValue(),
                     passBand)
 
+        var startTransitionFrequency = backend.getCutoffFrequency()
+        var endTransitionFrequency = backend.getTransitionLength() + backend.getCutoffFrequency()
+        if (backend.getPassType() === "High Pass") {
+            startTransitionFrequency = backend.getCutoffFrequency() - backend.getTransitionLength()
+            endTransitionFrequency = backend.getCutoffFrequency()
+        }
+
         transitionBand.upperSeries = createBandLineSeries(
-                    backend.getCutoffFrequency(),
-                    backend.getTransitionLength() + backend.getCutoffFrequency(),
+                    startTransitionFrequency, endTransitionFrequency,
                     backend.getFrequencyResponseMaxValue(),
                     transitionBand)
         transitionBand.lowerSeries = createBandLineSeries(
-                    backend.getCutoffFrequency(),
-                    backend.getTransitionLength() + backend.getCutoffFrequency(),
+                    startTransitionFrequency, endTransitionFrequency,
                     backend.getFrequencyResponseMinValue(),
                     transitionBand)
     }
