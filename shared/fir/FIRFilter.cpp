@@ -128,9 +128,9 @@ vector<double> FIRFilter::shiftFilterCoefficients(
 
   if (passType == FilterPass::highPass) {
     SineWave sine = SineWave(samplingRate);
-    // shift to Pi/4 to sample only high and low values, otherwise wave starts
+    // shift to Pi/2 to sample only high and low values, otherwise wave starts
     // from 0
-    auto period = sine.generatePeriod(samplingRate / 2, 1, M_PI / 4);
+    auto period = sine.generatePeriod(samplingRate / 2, 1, M_PI / 2);
 
     for (unsigned int i = 0; i < shiftedCoefficients.size(); i++) {
       shiftedCoefficients[i] *= period[i % period.size()];

@@ -52,4 +52,23 @@ BOOST_AUTO_TEST_CASE(generation_test) {
   testWaveGeneration(21000, 100000, 1);
 }
 
+void testPhaseShift(int waveFrequency, int samplingRate, double phaseShift, double expectedFirstSampleValue) {
+    auto generator = SineWave(samplingRate);
+    auto wave = generator.generatePeriod(waveFrequency, 1, phaseShift);
+
+    BOOST_TEST(wave.size() > 0);
+
+    const double tolerance = 1e-5;
+    BOOST_TEST(abs(abs(wave[0]) - abs(expectedFirstSampleValue)) < tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(phase_shift_test) {
+    // whole period is 2 * Pi
+    testPhaseShift(10, 100, 0, 0);
+    testPhaseShift(10, 100, M_PI / 2, 1);
+    testPhaseShift(10, 100, M_PI, 0);
+    testPhaseShift(10, 100, 3 * M_PI / 2, -1);
+    testPhaseShift(10, 100, 2 * M_PI, 0);
+}
+
 BOOST_AUTO_TEST_SUITE_END()

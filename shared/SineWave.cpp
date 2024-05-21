@@ -5,9 +5,9 @@
 
 using namespace std;
 
-SineWave::SineWave(const int samplingRateHz) : samplingRateHz{samplingRateHz} {
-  if (samplingRateHz < 1) {
-    throw invalid_argument("SineWave: samplingRateHz must be >= 1");
+SineWave::SineWave(const int samplingRate) : samplingRate{samplingRate} {
+  if (samplingRate < 1) {
+    throw invalid_argument("SineWave: samplingRate must be >= 1");
   }
 }
 
@@ -23,12 +23,12 @@ int SineWave::calculatePeriodSamplesCount(const int frequency) const {
     throw invalid_argument(
         "calculatePeriodSamplesCount: frequency must be >= 1");
   }
-  if (frequency > nyquistFrequency(samplingRateHz)) {
+  if (frequency > nyquistFrequency(samplingRate)) {
       throw invalid_argument(
           "calculatePeriodSamplesCount: frequency must be < samplingRate / 2 (Nyquist frequency)");
   }
 
-  return ceil(samplingRateHz / (double) frequency);
+  return ceil(samplingRate / (double) frequency);
 }
 
 /**
