@@ -16,7 +16,7 @@ constexpr ValueRange defaultAttenuationDBRange{1, 99};
 constexpr int defaultTransitionLength = 100;
 constexpr ValueRange defaultTransitionLengthRange{10, 1000};
 
-constexpr int defaultFilterSize = 200;
+constexpr int defaultFilterSize = 201;
 constexpr ValueRange defaultFilterSizeRange{2, 10000};
 constexpr bool defaultUseOptimalFilterSize = true;
 

@@ -83,7 +83,7 @@ ChartView {
     function updateBandLineSeries() {
         var startPassFrequency = 0
         var endPassFrequency = backend.getCutoffFrequency()
-        if (backend.getPassType() === "High Pass") {
+        if (isHighPass()) {
             startPassFrequency = backend.getCutoffFrequency()
             endPassFrequency = backend.getCutoffFrequencyRangeTo()
         }
@@ -99,7 +99,7 @@ ChartView {
 
         var startTransitionFrequency = backend.getCutoffFrequency()
         var endTransitionFrequency = backend.getTransitionLength() + backend.getCutoffFrequency()
-        if (backend.getPassType() === "High Pass") {
+        if (isHighPass()) {
             startTransitionFrequency = backend.getCutoffFrequency() - backend.getTransitionLength()
             endTransitionFrequency = backend.getCutoffFrequency()
         }

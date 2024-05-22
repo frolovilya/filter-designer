@@ -36,6 +36,10 @@ ApplicationWindow {
         return backend.getFilterType() === "FIR"
     }
 
+    function isHighPass() {
+        return backend.getPassType() === "High Pass"
+    }
+
     RowLayout {
         id: mainLayout
         anchors.fill: parent

@@ -56,10 +56,13 @@ vector<double> FIRFilter::generateIdealFrequencyResponse() const {
           ? cutoffFrequency
           : nyquistFrequency(samplingRate) - cutoffFrequency;
 
+  // For instance, for a cutoff frequency C and sampling rate F the
+  // following ranges must be set to 1:
+  // [0..C) ((F-C)..F)
   for (int i = 0; i < samplingRate; i++) {
     response.push_back(
         (i < modellingLowPassCutoffFrequency) ||
-                (i >= samplingRate - modellingLowPassCutoffFrequency)
+                (i > samplingRate - modellingLowPassCutoffFrequency)
             ? 1
             : 0);
   }
@@ -88,15 +91,18 @@ FIRFilter::calculateFilterCoefficients(int coefficientsCount) const {
   vector<double> coefficients;
   coefficients.reserve(coefficientsCount);
 
-  // Since frequency response is symmetrical starting from samplingRate / 2,
-  // mirror and concat first [1..coefficientsCount/2] values to get required
-  // filter coefficients. Skip 0 bin with DC value.
+  // Frequency response is symmetrical starting from samplingRate / 2.
+  //
+  // For even number of coefficient Ne=coefficientsCount/2,
+  // concat [Ne .. 0) and [0 .. Ne)
+  // For odd number of coefficient No=Ne-1
+  // concat [No .. 0) and [0 .. No]
   const bool isEvenCount = coefficientsCount % 2 == 0;
 
-  for (int i = coefficientsCount / 2; i >= 1; i--) {
+  for (int i = coefficientsCount / 2; i > 0; i--) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
-  for (int i = 1; i <= coefficientsCount / 2 + (isEvenCount ? 0 : 1); i++) {
+  for (int i = 0; i <= coefficientsCount / 2 - (isEvenCount ? 1 : 0); i++) {
     coefficients.push_back(filterTimeDomain[i].real());
   }
 
@@ -192,6 +198,8 @@ int FIRFilter::getTransitionLength(int samplingRate, double attenuationDB,
 int FIRFilter::getOptimalCoefficientsCount(int samplingRate,
                                            double attenuationDB,
                                            int transitionLength) {
-  return ceil(attenuationDB * nyquistFrequency(samplingRate) /
-              (22 * transitionLength));
+  int count = ceil(attenuationDB * nyquistFrequency(samplingRate) /
+                   (22 * transitionLength));
+  // return odd number of coefficients to have a linear phase characteristics
+  return count % 2 == 0 ? count + 1 : count;
 }

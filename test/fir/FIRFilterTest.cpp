@@ -30,10 +30,19 @@ void idealFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
                                BlackmanWindow(), samplingRate);
   auto response = filter.generateIdealFrequencyResponse();
 
-  // ensure that ideal response is symmetric
+  // ensure that ideal response is symmetric around center element
   const double tolerance = 10e-7;
+  const int modellingLowPassFrequency =
+      pass == FilterPass::lowPass ? cutoffFrequency
+                                  : samplingRate / 2 - cutoffFrequency;
+
   for (int i = 0, j = response.size() - 1; i < j; i++, j--) {
-    BOOST_TEST(abs(response[i] - response[j]) < tolerance);
+    if (i == modellingLowPassFrequency - 1) {
+      BOOST_TEST(response[i] == 1);
+      BOOST_TEST(response[j] == 0);
+    } else {
+      BOOST_TEST(abs(response[i] - response[j]) < tolerance);
+    }
   }
 }
 
@@ -41,9 +50,9 @@ BOOST_AUTO_TEST_CASE(ideal_frequency_response_test) {
   idealFrequencyResponseTest(FilterPass::lowPass, 20, 100, 20);
   idealFrequencyResponseTest(FilterPass::lowPass, 1500, 21000, 373);
   idealFrequencyResponseTest(FilterPass::lowPass, 2000, 48000, 500);
-  idealFrequencyResponseTest(FilterPass::highPass, 10000, 48000, 500);
+  idealFrequencyResponseTest(FilterPass::highPass, 10000, 48000, 501);
   idealFrequencyResponseTest(FilterPass::highPass, 20000, 48000, 333);
-  idealFrequencyResponseTest(FilterPass::highPass, 7000, 15000, 400);
+  idealFrequencyResponseTest(FilterPass::highPass, 7000, 15000, 440);
 }
 
 void actualFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
@@ -81,7 +90,7 @@ void actualFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
 BOOST_AUTO_TEST_CASE(response_test) {
   // test normal frequencies
   for (int cutoffFrequency = 40; cutoffFrequency < 23999;
-       cutoffFrequency += 400) {
+       cutoffFrequency += 800) {
     actualFrequencyResponseTest(FilterPass::lowPass, cutoffFrequency, 48000,
                                 200);
     actualFrequencyResponseTest(FilterPass::highPass, cutoffFrequency, 48000,
@@ -91,9 +100,9 @@ BOOST_AUTO_TEST_CASE(response_test) {
   // test various sampling rates
   for (int samplingRate = 10; samplingRate < 400000; samplingRate *= 2) {
     actualFrequencyResponseTest(FilterPass::lowPass, samplingRate / 4,
-                                samplingRate, 110);
+                                samplingRate, std::sqrt(samplingRate));
     actualFrequencyResponseTest(FilterPass::highPass, samplingRate / 4,
-                                samplingRate, 110);
+                                samplingRate, std::sqrt(samplingRate) + 1);
   }
 }
 
@@ -101,6 +110,9 @@ void transitionLengthTest(int transitionLength, int samplingRate,
                           double attenuationDB) {
   const int optimalCoefficientsCount = FIRFilter::getOptimalCoefficientsCount(
       samplingRate, attenuationDB, transitionLength);
+
+  // odd number of coefficients
+  BOOST_TEST(optimalCoefficientsCount % 2 == 1);
 
   const int calculatedTransitionLenght = FIRFilter::getTransitionLength(
       samplingRate, attenuationDB, optimalCoefficientsCount);

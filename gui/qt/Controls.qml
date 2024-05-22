@@ -248,16 +248,18 @@ ColumnLayout {
                     text: "Cutoff x4"
                     palette.button: "dimgray"
                     onClicked: {
-                        if (backend.getPassType() === "Low Pass") {
-                            backend.setVisibleFrequencyFrom(1)
-                            backend.setVisibleFrequencyTo(
-                                        backend.getCutoffFrequency() * 4)
-                        } else if (backend.getPassType() === "High Pass") {
+                        if (isHighPass()) {
                             backend.setVisibleFrequencyFrom(
                                         backend.getSamplingRate() / 2
                                         - (backend.getSamplingRate() / 2 - backend.getCutoffFrequency()) * 4)
                             backend.setVisibleFrequencyTo(
                                         backend.getSamplingRate() / 2)
+
+                        } else {
+                            backend.setVisibleFrequencyFrom(1)
+                            backend.setVisibleFrequencyTo(
+                                        backend.getCutoffFrequency() * 4)
+
                         }
                     }
                 }
