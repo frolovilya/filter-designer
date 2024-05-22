@@ -2,7 +2,6 @@
 #include "Sampling.hpp"
 #include <cmath>
 #include <stdexcept>
-#include <iostream>
 
 using namespace std;
 
@@ -61,8 +60,7 @@ vector<double> SineWave::generatePeriod(const int frequency,
 }
 
 /**
- * Find phase shift between two sine waves.
- * Waves must be of the same length.
+ * Find phase shift between two sine waves of the same length
  *
  * @return phase shift in radians
  */
@@ -70,7 +68,7 @@ double SineWave::phaseShift(std::vector<double> wave1,
                             std::vector<double> wave2) {
   if (wave1.size() != wave2.size()) {
     throw invalid_argument(
-        "phaseShift: wave1 and wave2 must be of the same legth");
+        "phaseShift: wave1 and wave2 must be of the same length");
   }
 
   // find phase shift

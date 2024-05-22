@@ -1,8 +1,8 @@
-#ifndef UNWRAP_HPP
-#define UNWRAP_HPP
+#ifndef PHASE_H
+#define PHASE_H
 
 #include <vector>
 
 std::vector<double> phaseUnwrap(const std::vector<double>& in);
 
-#endif // UNWRAP_HPP
+#endif // PHASE_H

@@ -223,9 +223,9 @@ QString Backend::getCoefficientsString() const {
 }
 
 template <typename ForwardIt>
-double getMinFiniteValue(ForwardIt begin, ForwardIt end) {
+double getMinFiniteValue(ForwardIt begin, ForwardIt end, ForwardIt limit) {
   double minValue = 0;
-  for (auto iter = begin; iter < end; iter++) {
+  for (auto iter = begin; iter < limit && iter < end; iter++) {
     if (std::isfinite(*iter) && *iter < minValue) {
       minValue = *iter;
     }
@@ -234,9 +234,9 @@ double getMinFiniteValue(ForwardIt begin, ForwardIt end) {
 }
 
 template <typename ForwardIt>
-double getMaxFiniteValue(ForwardIt begin, ForwardIt end) {
+double getMaxFiniteValue(ForwardIt begin, ForwardIt end, ForwardIt limit) {
   double maxValue = 0;
-  for (auto iter = begin; iter < end; iter++) {
+  for (auto iter = begin; iter < limit && iter < end; iter++) {
     if (std::isfinite(*iter) && *iter > maxValue) {
       maxValue = *iter;
     }
@@ -255,23 +255,27 @@ double Backend::getCoefficientsMaxValue() const {
 double Backend::getFrequencyResponseMinValue() const {
   auto magnitudeResponse = magnitudes(filterResponse);
   return getMinFiniteValue(magnitudeResponse.begin() + visibleFrequencyFrom - 1,
-                           magnitudeResponse.begin() + visibleFrequencyTo - 1);
+                           magnitudeResponse.begin() + visibleFrequencyTo - 1,
+                           magnitudeResponse.end());
 }
 double Backend::getFrequencyResponseMaxValue() const {
   auto magnitudeResponse = magnitudes(filterResponse);
   return getMaxFiniteValue(magnitudeResponse.begin() + visibleFrequencyFrom - 1,
-                           magnitudeResponse.begin() + visibleFrequencyTo - 1);
+                           magnitudeResponse.begin() + visibleFrequencyTo - 1,
+                           magnitudeResponse.end());
 }
 
 double Backend::getPhaseResponseMinValue() const {
   auto shifts = phaseShifts(filterResponse);
   return getMinFiniteValue(shifts.begin() + visibleFrequencyFrom - 1,
-                           shifts.begin() + visibleFrequencyTo - 1);
+                           shifts.begin() + visibleFrequencyTo - 1,
+                           shifts.end());
 }
 double Backend::getPhaseResponseMaxValue() const {
   auto shifts = phaseShifts(filterResponse);
   return getMaxFiniteValue(shifts.begin() + visibleFrequencyFrom - 1,
-                           shifts.begin() + visibleFrequencyTo - 1);
+                           shifts.begin() + visibleFrequencyTo - 1,
+                           shifts.end());
 }
 
 int Backend::getVisibleFrequencyFrom() const { return visibleFrequencyFrom; }

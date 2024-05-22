@@ -11,8 +11,8 @@ add_library(filter-designer-shared
   Filter.hpp
   FilterPass.hpp
   FilterResponse.hpp
-  Unwrap.hpp
-  Unwrap.cpp
+  Phase.hpp
+  Phase.cpp
 )
 
 find_path(FFTW_HEADER_PATH fftw3.h)

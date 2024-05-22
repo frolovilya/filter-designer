@@ -84,6 +84,8 @@ void actualFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
   for (const FilterResponse &f : filterResponse) {
     // test that response magnitudes are negative
     BOOST_TEST(f.magnitudeDB <= 0);
+    // check that phase response is valid
+    BOOST_TEST_REQUIRE(std::isfinite(f.phaseShift));
   }
 }
 
