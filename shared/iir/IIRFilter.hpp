@@ -2,22 +2,21 @@
 #define IIR_FILTER_H
 
 #include "../Filter.hpp"
-#include "RCGrid.hpp"
 #include <vector>
 
 class IIRFilter : public Filter {
 public:
-  IIRFilter(const RCGrid &rcGrid);
+  IIRFilter(int cutoffFrequency, int samplingRate);
+  virtual ~IIRFilter() {}
 
   int getCutoffFrequency() const override;
   int getSamplingRate() const override;
-  std::vector<double> getFilterCoefficients() const override;
   std::vector<FilterResponse> calculateResponse() const override;
+  std::vector<double> apply(const std::vector<double> &samples) const;
 
 private:
-  const RCGrid &rcGrid;
-
-  std::vector<double> apply(const std::vector<double> &samples) const;
+  const int cutoffFrequency;
+  const int samplingRate;
 };
 
 #endif

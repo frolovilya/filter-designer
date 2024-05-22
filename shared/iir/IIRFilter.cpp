@@ -7,27 +7,23 @@ using namespace std;
 /**
  * Infinite Impulse Response filter
  */
-IIRFilter::IIRFilter(const RCGrid &rcGrid) : rcGrid{rcGrid} {}
-
-int IIRFilter::getCutoffFrequency() const {
-  return rcGrid.getCutoffFrequency();
+IIRFilter::IIRFilter(int cutoffFrequency, int samplingRate)
+    : cutoffFrequency{cutoffFrequency}, samplingRate{samplingRate} {
+  if (cutoffFrequency < 1) {
+    throw std::invalid_argument("IIRFilter: cutoffFrequency must be >= 1");
+  }
+  if (samplingRate < 1) {
+    throw std::invalid_argument("IIRFilter: samplingRate must be >= 1");
+  }
+  if (cutoffFrequency >= nyquistFrequency(samplingRate)) {
+    throw std::invalid_argument("IIRFilter: cutoffFrequency must be < "
+                                "samplingRate/2 (Nyquist frequency");
+  }
 }
 
-int IIRFilter::getSamplingRate() const { return rcGrid.getSamplingRate(); }
+int IIRFilter::getCutoffFrequency() const { return cutoffFrequency; }
 
-/**
- * Given:
- * Vout[n] = A * Vin[n] + B * Vout[n-1]
- *
- * Then A and B are filter coefficients
- *
- * @return IIR filter coefficients
- */
-vector<double> IIRFilter::getFilterCoefficients() const {
-  IIRFilterCoefficients coefficients = rcGrid.getIIRFilterCoefficients();
-  vector<double> result{coefficients.a, coefficients.b};
-  return result;
-}
+int IIRFilter::getSamplingRate() const { return samplingRate; }
 
 /**
  * Calculate IIR filter frequency response from 1 to samplingRate / 2
@@ -53,22 +49,31 @@ vector<FilterResponse> IIRFilter::calculateResponse() const {
 }
 
 /**
- * Apply filter to a sample buffer
+ * Apply filter to a sample buffer.
+ *
+ * Using coefficients a,b,c returned by getFilterCoefficients() method:
+ * Vout = a * Vin[n] + b * Vin[n-1] + c * Vout[n-1]
  *
  * @param samples input buffer
  * @return filtered samples
  */
 vector<double> IIRFilter::apply(const vector<double> &samples) const {
-  double vOutFeedback = 0;
+  if (samples.size() == 0) {
+    return samples;
+  }
+
+  const auto coefficients = getFilterCoefficients();
+  if (coefficients.size() < 3) {
+    throw std::logic_error("Expecting at least 3 IIR filter coefficients");
+  }
 
   vector<double> result;
-  for (const double &sample : samples) {
-    // Given A and B are IIR filter coefficients:
-    // Vout[n] = A * Vin[n] + B * Vout[n-1]
-    vOutFeedback = rcGrid.getIIRFilterCoefficients().a * sample +
-                   rcGrid.getIIRFilterCoefficients().b * vOutFeedback;
-
-    result.push_back(vOutFeedback);
+  result.push_back(samples[0]);
+  for (unsigned int i = 1; i < samples.size(); i++) {
+    // Vout = a * Vin[n] - a * Vin[n-1] + a * Vout[n-1]
+    result.push_back(coefficients[0] * samples[i]
+                     + coefficients[1] * samples[i - 1]
+                     + coefficients[2] * result[i - 1]);
   }
 
   return result;

@@ -1,5 +1,5 @@
 add_library(filter-designer-shared
-  iir/RCGrid.cpp iir/RCGrid.hpp
+  iir/LowPassRCCircuit.cpp iir/LowPassRCCircuit.hpp
   iir/IIRFilter.cpp iir/IIRFilter.hpp
   SineWave.cpp SineWave.hpp
   fir/FIRFilter.cpp fir/FIRFilter.hpp
@@ -13,6 +13,10 @@ add_library(filter-designer-shared
   FilterResponse.hpp
   Phase.hpp
   Phase.cpp
+  iir/HighPassCRCircuit.hpp iir/HighPassCRCircuit.cpp
+  iir/Capacitance.hpp
+
+
 )
 
 find_path(FFTW_HEADER_PATH fftw3.h)

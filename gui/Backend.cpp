@@ -4,6 +4,8 @@
 #include "../shared/fir/FIRFilter.hpp"
 #include "../shared/fir/RectangularWindow.hpp"
 #include "../shared/iir/IIRFilter.hpp"
+#include "../shared/iir/LowPassRCCircuit.hpp"
+#include "../shared/iir/HighPassCRCircuit.hpp"
 #include "ListSelectorValues.hpp"
 #include <QAreaSeries>
 #include <QDebug>
@@ -305,14 +307,9 @@ void Backend::setVisibleFrequencyTo(int value) {
  */
 void Backend::recalculateCoefficientsAndFrequencyResponse() {
   std::unique_ptr<Filter> filter;
+  std::unique_ptr<Window> window;
 
   if (filterType == FilterType::fir) {
-    std::unique_ptr<Window> window;
-    if (windowType == WindowType::blackman) {
-      window = std::unique_ptr<Window>(new BlackmanWindow());
-    } else {
-      window = std::unique_ptr<Window>(new RectangularWindow());
-    }
 
     qInfo() << "FIR pass=" << toString(passType)
             << "; cutoffFrequency=" << cutoffFrequency
@@ -320,15 +317,26 @@ void Backend::recalculateCoefficientsAndFrequencyResponse() {
             << "; window=" << toString(windowType)
             << "; samplingRate=" << samplingRate << "\n";
 
+    if (windowType == WindowType::blackman) {
+      window = std::unique_ptr<Window>(new BlackmanWindow());
+    } else {
+      window = std::unique_ptr<Window>(new RectangularWindow());
+    }
+
     filter = std::unique_ptr<Filter>(new FIRFilter(
         passType, cutoffFrequency, filterSize, *window, samplingRate));
+
   } else {
-    qInfo() << "IIR cutoffFrequency=" << cutoffFrequency
+    qInfo() << "IIR pass=" << toString(passType)
+            << "; cutoffFrequency=" << cutoffFrequency
             << "; filterSize=" << filterSize
             << "; samplingRate=" << samplingRate << "\n";
 
-    RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
-    filter = std::unique_ptr<Filter>(new IIRFilter(rcGrid));
+    if (passType == FilterPass::lowPass) {
+        filter = std::unique_ptr<Filter>(new LowPassRCCircuit(cutoffFrequency, samplingRate));
+    } else {
+        filter = std::unique_ptr<Filter>(new HighPassCRCircuit(cutoffFrequency, samplingRate));
+    }
   }
 
   coefficients = filter->getFilterCoefficients();
