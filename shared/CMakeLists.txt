@@ -10,6 +10,9 @@ add_library(filter-designer-shared
   Sampling.cpp Sampling.hpp
   Filter.hpp
   FilterPass.hpp
+  FilterResponse.hpp
+  Unwrap.hpp
+  Unwrap.cpp
 )
 
 find_path(FFTW_HEADER_PATH fftw3.h)

@@ -1,6 +1,5 @@
 #include "BlackmanWindow.hpp"
 #include <cmath>
-#include <iostream>
 
 using namespace std;
 

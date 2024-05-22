@@ -14,8 +14,7 @@
 #include <QtMath>
 #include <sstream>
 
-Backend::Backend(QObject *parent)
-    : QObject{parent}, coefficients{{}}, frequencyResponse{{}} {
+Backend::Backend(QObject *parent) : QObject{parent} {
   QObject::connect(this, &Backend::recalculationNeeded,
                    &Backend::recalculateCoefficientsAndFrequencyResponse);
 }
@@ -203,6 +202,11 @@ void Backend::setUseOptimalFilterSize(bool value) {
   }
   useOptimalFilterSize = value;
 
+  if (useOptimalFilterSize) {
+    setFilterSize(FIRFilter::getOptimalCoefficientsCount(
+        samplingRate, attenuationDB, transitionLength));
+  }
+
   emit controlsStateChanged();
 }
 
@@ -218,6 +222,28 @@ QString Backend::getCoefficientsString() const {
   return QString::fromStdString(s);
 }
 
+template <typename ForwardIt>
+double getMinFiniteValue(ForwardIt begin, ForwardIt end) {
+  double minValue = 0;
+  for (auto iter = begin; iter < end; iter++) {
+    if (std::isfinite(*iter) && *iter < minValue) {
+      minValue = *iter;
+    }
+  }
+  return minValue;
+}
+
+template <typename ForwardIt>
+double getMaxFiniteValue(ForwardIt begin, ForwardIt end) {
+  double maxValue = 0;
+  for (auto iter = begin; iter < end; iter++) {
+    if (std::isfinite(*iter) && *iter > maxValue) {
+      maxValue = *iter;
+    }
+  }
+  return maxValue;
+}
+
 int Backend::getCoefficientsCount() const { return coefficients.size(); }
 double Backend::getCoefficientsMinValue() const {
   return *std::min_element(coefficients.begin(), coefficients.end());
@@ -227,18 +253,25 @@ double Backend::getCoefficientsMaxValue() const {
 }
 
 double Backend::getFrequencyResponseMinValue() const {
-  double minElement = 0;
-  for (auto iter = frequencyResponse.begin() + visibleFrequencyFrom - 1;
-       iter < frequencyResponse.begin() + visibleFrequencyTo - 1; iter++) {
-      if (std::isfinite(*iter) && *iter < minElement) {
-          minElement = *iter;
-      }
-  }
-  return minElement;
+  auto magnitudeResponse = magnitudes(filterResponse);
+  return getMinFiniteValue(magnitudeResponse.begin() + visibleFrequencyFrom - 1,
+                           magnitudeResponse.begin() + visibleFrequencyTo - 1);
 }
 double Backend::getFrequencyResponseMaxValue() const {
-  return *std::max_element(frequencyResponse.begin() + visibleFrequencyFrom - 1,
-                           frequencyResponse.begin() + visibleFrequencyTo - 1);
+  auto magnitudeResponse = magnitudes(filterResponse);
+  return getMaxFiniteValue(magnitudeResponse.begin() + visibleFrequencyFrom - 1,
+                           magnitudeResponse.begin() + visibleFrequencyTo - 1);
+}
+
+double Backend::getPhaseResponseMinValue() const {
+  auto shifts = phaseShifts(filterResponse);
+  return getMinFiniteValue(shifts.begin() + visibleFrequencyFrom - 1,
+                           shifts.begin() + visibleFrequencyTo - 1);
+}
+double Backend::getPhaseResponseMaxValue() const {
+  auto shifts = phaseShifts(filterResponse);
+  return getMaxFiniteValue(shifts.begin() + visibleFrequencyFrom - 1,
+                           shifts.begin() + visibleFrequencyTo - 1);
 }
 
 int Backend::getVisibleFrequencyFrom() const { return visibleFrequencyFrom; }
@@ -286,13 +319,17 @@ void Backend::recalculateCoefficientsAndFrequencyResponse() {
     filter = std::unique_ptr<Filter>(new FIRFilter(
         passType, cutoffFrequency, filterSize, *window, samplingRate));
   } else {
+    qInfo() << "IIR cutoffFrequency=" << cutoffFrequency
+            << "; filterSize=" << filterSize
+            << "; samplingRate=" << samplingRate << "\n";
+
     RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
     filter = std::unique_ptr<Filter>(new IIRFilter(rcGrid));
   }
 
   coefficients = filter->getFilterCoefficients();
 
-  frequencyResponse = filter->calculateResponseDB();
+  filterResponse = filter->calculateResponse();
 
   emit calculationCompleted();
 }
@@ -326,6 +363,11 @@ void Backend::updateCoefficients(QAbstractSeries *series) {
 }
 
 void Backend::updateFrequencyResponse(QAbstractSeries *series) {
-  updateListSeries(series, frequencyResponse, visibleFrequencyFrom - 1,
+  updateListSeries(series, magnitudes(filterResponse), visibleFrequencyFrom - 1,
                    visibleFrequencyTo - 1);
+}
+
+void Backend::updatePhaseShifts(QAbstractSeries *series) {
+  updateListSeries(series, phaseShifts(filterResponse),
+                   visibleFrequencyFrom - 1, visibleFrequencyTo - 1);
 }

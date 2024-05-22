@@ -2,6 +2,7 @@
 #include "Sampling.hpp"
 #include <cmath>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 
@@ -12,10 +13,11 @@ SineWave::SineWave(const int samplingRate) : samplingRate{samplingRate} {
 }
 
 /**
- * Calculate how many samples will a single-period sine wave with a given frequency
- * take with a given sampling rate
+ * Calculate how many samples will a single-period sine wave with a given
+ * frequency take with a given sampling rate
  *
- * @param frequency target wave frequency (must be >= 1 and <= Nyquist frequency)
+ * @param frequency target wave frequency (must be >= 1 and <= Nyquist
+ * frequency)
  * @return number of samples to represent one period
  */
 int SineWave::calculatePeriodSamplesCount(const int frequency) const {
@@ -24,11 +26,11 @@ int SineWave::calculatePeriodSamplesCount(const int frequency) const {
         "calculatePeriodSamplesCount: frequency must be >= 1");
   }
   if (frequency > nyquistFrequency(samplingRate)) {
-      throw invalid_argument(
-          "calculatePeriodSamplesCount: frequency must be < samplingRate / 2 (Nyquist frequency)");
+    throw invalid_argument("calculatePeriodSamplesCount: frequency must be < "
+                           "samplingRate / 2 (Nyquist frequency)");
   }
 
-  return ceil(samplingRate / (double) frequency);
+  return ceil(samplingRate / (double)frequency);
 }
 
 /**
@@ -56,4 +58,34 @@ vector<double> SineWave::generatePeriod(const int frequency,
   }
 
   return samples;
+}
+
+/**
+ * Find phase shift between two sine waves.
+ * Waves must be of the same length.
+ *
+ * @return phase shift in radians
+ */
+double SineWave::phaseShift(std::vector<double> wave1,
+                            std::vector<double> wave2) {
+  if (wave1.size() != wave2.size()) {
+    throw invalid_argument(
+        "phaseShift: wave1 and wave2 must be of the same legth");
+  }
+
+  // find phase shift
+  double shift = 0;
+  for (unsigned int j = 0; j < wave1.size(); j++) {
+    shift += wave1[j] * wave2[j];
+  }
+  shift /= wave1.size();
+  shift *= 2;
+
+  if (shift > 1) {
+      return 0;
+  } else if (shift < -1) {
+      return 0;
+  } else {
+      return std::acos(shift);
+  }
 }

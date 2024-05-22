@@ -42,8 +42,20 @@ ChartView {
         gridVisible: true
         lineVisible: false
         labelFormat: "%.0f"
-        labelsColor: "dimgray"
-        titleText: "Magnitude (dB)"
+        labelsColor: "mediumspringgreen"
+        titleText: "<font color='mediumspringgreen'>Magnitude (dB)</font>"
+    }
+
+    ValuesAxis {
+        id: phaseShiftAxisY
+        min: -100
+        max: 0
+        gridLineColor: "dimgray"
+        gridVisible: false
+        lineVisible: false
+        labelFormat: "%.0f"
+        labelsColor: "blue"
+        titleText: "<font color='blue'>Phase Shift (Rad)</font>"
     }
 
     AreaSeries {
@@ -63,6 +75,14 @@ ChartView {
         color: "gray"
         borderWidth: 0
         opacity: 0.8
+    }
+
+    LineSeries {
+        id: phaseShiftSeries
+        axisX: frequencyAxisX
+        axisYRight: phaseShiftAxisY
+        color: "blue"
+        width: 2
     }
 
     LineSeries {
@@ -121,11 +141,15 @@ ChartView {
         magnitudeAxisY.min = backend.getFrequencyResponseMinValue()
         magnitudeAxisY.max = backend.getFrequencyResponseMaxValue()
 
+        phaseShiftAxisY.min = backend.getPhaseResponseMinValue()
+        phaseShiftAxisY.max = backend.getPhaseResponseMaxValue()
+
         transitionBand.visible = isFIR()
 
         updateBandLineSeries()
 
         backend.updateFrequencyResponse(frequencyResponseSeries)
+        backend.updatePhaseShifts(phaseShiftSeries)
     }
 
     Connections {

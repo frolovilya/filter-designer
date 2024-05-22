@@ -8,6 +8,7 @@
 #include "ListSelectorValues.hpp"
 #include "ValueRange.hpp"
 #include "DefaultControlValues.hpp"
+#include "../shared/FilterResponse.hpp"
 
 QT_FORWARD_DECLARE_CLASS(QAbstractSeries)
 
@@ -53,6 +54,9 @@ public:
   Q_INVOKABLE double getFrequencyResponseMinValue() const;
   Q_INVOKABLE double getFrequencyResponseMaxValue() const;
 
+  Q_INVOKABLE double getPhaseResponseMaxValue() const;
+  Q_INVOKABLE double getPhaseResponseMinValue() const;
+
   Q_INVOKABLE int getVisibleFrequencyFrom() const;
   Q_INVOKABLE int getVisibleFrequencyTo() const;
 
@@ -71,6 +75,7 @@ public slots:
   void recalculateCoefficientsAndFrequencyResponse();
   void updateCoefficients(QAbstractSeries *series);
   void updateFrequencyResponse(QAbstractSeries *series);
+  void updatePhaseShifts(QAbstractSeries *series);
 
 signals:
   void controlsStateChanged();
@@ -90,7 +95,7 @@ private:
   int visibleFrequencyFrom = defaultVisibleFrequencyRange.from;
   int visibleFrequencyTo = defaultVisibleFrequencyRange.to;
   std::vector<double> coefficients;
-  std::vector<double> frequencyResponse;
+  std::vector<FilterResponse> filterResponse;
 
   void updateListSeries(QAbstractSeries *series,
                         const std::vector<double> &data, int from, int to);

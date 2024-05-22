@@ -16,7 +16,7 @@ public:
   int getSamplingRate() const override;
 
   std::vector<double> getFilterCoefficients() const override;
-  std::vector<double> calculateResponseDB() const override;
+  std::vector<FilterResponse> calculateResponse() const override;
 
   std::vector<double> generateIdealFrequencyResponse() const;
 

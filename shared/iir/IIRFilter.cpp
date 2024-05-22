@@ -32,23 +32,24 @@ vector<double> IIRFilter::getFilterCoefficients() const {
 /**
  * Calculate IIR filter frequency response from 1 to samplingRate / 2
  *
- * @return magnitudes (dB) for each frequency
+ * @return magnitudes (dB) [-Inf, 0] and phase shifts [0] for each frequency
  */
-vector<double> IIRFilter::calculateResponseDB() const {
+vector<FilterResponse> IIRFilter::calculateResponse() const {
   const int fromFrequency = 1;
   const int toFrequency = nyquistFrequency(getSamplingRate());
 
-  vector<double> frequencyResponse;
+  vector<FilterResponse> response;
   auto sine = SineWave(getSamplingRate());
-  for (int frequency = fromFrequency; frequency < toFrequency;
-       frequency++) {
+  for (int frequency = fromFrequency; frequency < toFrequency; frequency++) {
     auto samples = sine.generatePeriod(frequency, 1);
     auto filteredSamples = apply(std::move(samples));
 
-    frequencyResponse.push_back(toDB(maxAbsValue(filteredSamples)));
+    response.push_back(
+        FilterResponse(toDB(maxAbsValue(filteredSamples)),
+                       SineWave::phaseShift(samples, filteredSamples)));
   }
 
-  return frequencyResponse;
+  return response;
 }
 
 /**

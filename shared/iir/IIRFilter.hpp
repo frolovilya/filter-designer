@@ -2,7 +2,6 @@
 #define IIR_FILTER_H
 
 #include "../Filter.hpp"
-#include "IIRFilterCoefficients.hpp"
 #include "RCGrid.hpp"
 #include <vector>
 
@@ -13,7 +12,7 @@ public:
   int getCutoffFrequency() const override;
   int getSamplingRate() const override;
   std::vector<double> getFilterCoefficients() const override;
-  std::vector<double> calculateResponseDB() const override;
+  std::vector<FilterResponse> calculateResponse() const override;
 
 private:
   const RCGrid &rcGrid;

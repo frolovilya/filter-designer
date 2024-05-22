@@ -13,13 +13,13 @@ void testFrequencyResponse(int cutoffFrequency, int samplingRate) {
   RCGrid rcGrid = RCGrid(cutoffFrequency, samplingRate);
   IIRFilter filter = IIRFilter(rcGrid);
 
-  auto filterResponse = filter.calculateResponseDB();
+  auto filterResponse = filter.calculateResponse();
   // for IIR expecting magnitude at cutoffFrequency at least < 0
-  BOOST_TEST(filterResponse[cutoffFrequency] < 0);
+  BOOST_TEST(filterResponse[cutoffFrequency].magnitudeDB < 0);
 
   // test that response magnitudes are negative
-  for (const double &magnitude : filterResponse) {
-    BOOST_TEST(magnitude <= 0);
+  for (const FilterResponse &response : filterResponse) {
+    BOOST_TEST(response.magnitudeDB <= 0);
   }
 }
 

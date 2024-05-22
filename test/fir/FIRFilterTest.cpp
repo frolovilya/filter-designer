@@ -74,16 +74,16 @@ void actualFrequencyResponseTest(FilterPass pass, int cutoffFrequency,
     BOOST_TEST((c >= -1 && c <= 1));
   }
 
-  auto filterResponse = filter.calculateResponseDB();
+  auto filterResponse = filter.calculateResponse();
   const int transitionPeriod = 500;
   const double attenuationDB = -10;
   // rought test that attenuation is -10dB at cutoff frequency + transition
   // period
-  BOOST_TEST(filterResponse[cutoffFrequency + transitionPeriod] <
+  BOOST_TEST(filterResponse[cutoffFrequency + transitionPeriod].magnitudeDB <
              -attenuationDB);
-  for (const double &f : filterResponse) {
+  for (const FilterResponse &f : filterResponse) {
     // test that response magnitudes are negative
-    BOOST_TEST(f <= 0);
+    BOOST_TEST(f.magnitudeDB <= 0);
   }
 }
 

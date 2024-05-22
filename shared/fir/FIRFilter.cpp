@@ -149,9 +149,9 @@ vector<double> FIRFilter::shiftFilterCoefficients(
 /**
  * Calculate FIR filter frequency response from 1 to samplingRate / 2
  *
- * @return magnitudes (dB) for each frequency [-Inf, 0]
+ * @return magnitudes (dB) [-Inf, 0] and phase shifts for each frequency
  */
-vector<double> FIRFilter::calculateResponseDB() const {
+vector<FilterResponse> FIRFilter::calculateResponse() const {
   const int fromFrequency = 1;
   const int toFrequency = nyquistFrequency(samplingRate);
 
@@ -161,18 +161,27 @@ vector<double> FIRFilter::calculateResponseDB() const {
   }
 
   auto fftResult = fft::direct(fft::toComplexVector(paddedCoefficients));
-  vector<double> frequencyResponse;
-  frequencyResponse.reserve(toFrequency - fromFrequency);
+  vector<double> magnitudes;
+  vector<double> phaseShifts;
+  magnitudes.reserve(toFrequency);
+  phaseShifts.reserve(toFrequency);
 
   for (int i = fromFrequency - 1; i < toFrequency; i++) {
-    frequencyResponse.push_back(abs(fftResult[i])); // Mod(complex)
+    magnitudes.push_back(abs(fftResult[i]));
+    phaseShifts.push_back(arg(fftResult[i]));
   }
-  frequencyResponse = normalize(frequencyResponse);
-  for (double &value : frequencyResponse) {
+  magnitudes = normalize(magnitudes);
+  for (double &value : magnitudes) {
     value = toDB(abs(value));
   }
 
-  return frequencyResponse;
+  vector<FilterResponse> response;
+  response.reserve(magnitudes.size());
+  for (unsigned int i = 0; i < magnitudes.size(); i++) {
+      response.push_back(FilterResponse(magnitudes[i], phaseShifts[i]));
+  }
+
+  return response;
 }
 
 /**
