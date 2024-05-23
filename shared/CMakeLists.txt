@@ -21,5 +21,6 @@ add_library(filter-designer-shared
 
 find_path(FFTW_HEADER_PATH fftw3.h)
 find_library(FFTW_LIB_PATH fftw3)
+message("FFTW3 Library: " ${FFTW_LIB_PATH})
 target_include_directories(filter-designer-shared PUBLIC ${FFTW_HEADER_PATH})
 target_link_libraries(filter-designer-shared ${FFTW_LIB_PATH})

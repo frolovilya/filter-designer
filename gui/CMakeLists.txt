@@ -1,4 +1,9 @@
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "~/Dev/tools/QT/6.7.0/macos")
+if(NOT QT_PATH)
+    set(QT_PATH "~/Dev/tools/QT/6.7.0/macos")
+endif()
+message("Qt Path: " ${QT_PATH})
+
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${QT_PATH})
 find_package(Qt6 6.4 REQUIRED COMPONENTS Quick Charts)
 
 qt_standard_project_setup()
