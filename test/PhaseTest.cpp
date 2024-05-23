@@ -1,6 +1,9 @@
 #include "../shared/Phase.hpp"
 #include <boost/test/unit_test.hpp>
 #include <cmath>
+#include <numbers>
+
+using namespace std;
 
 BOOST_AUTO_TEST_SUITE(Phase_test)
 
@@ -17,14 +20,14 @@ void phaseUnwrapTest(std::vector<double> inputAngles,
 
 BOOST_AUTO_TEST_CASE(phase_unwrap_test) {
   // expecting to add 2 * Pi to angle diffs >= Pi
-  phaseUnwrapTest({0, -M_PI, -2 * M_PI, -3 * M_PI, -3.5 * M_PI},
-                  {0, M_PI, 2 * M_PI, 3 * M_PI, 2.5 * M_PI});
+  phaseUnwrapTest({0, -numbers::pi, -2 * numbers::pi, -3 * numbers::pi, -3.5 * numbers::pi},
+                  {0, numbers::pi, 2 * numbers::pi, 3 * numbers::pi, 2.5 * numbers::pi});
 
-  phaseUnwrapTest({0, -M_PI, M_PI, -M_PI},
-                  {0, M_PI, M_PI, M_PI});
+  phaseUnwrapTest({0, -numbers::pi, numbers::pi, -numbers::pi},
+                  {0, numbers::pi, numbers::pi, numbers::pi});
 
-  phaseUnwrapTest({0, M_PI, 2 + M_PI, 3 + M_PI},
-                  {0, M_PI, 2 + M_PI, 3 + M_PI});
+  phaseUnwrapTest({0, numbers::pi, 2 + numbers::pi, 3 + numbers::pi},
+                  {0, numbers::pi, 2 + numbers::pi, 3 + numbers::pi});
 }
 
 BOOST_AUTO_TEST_SUITE_END()

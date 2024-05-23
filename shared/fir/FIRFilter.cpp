@@ -3,6 +3,7 @@
 #include "../Sampling.hpp"
 #include "../SineWave.hpp"
 #include <cmath>
+#include <numbers>
 
 using namespace std;
 
@@ -136,7 +137,7 @@ vector<double> FIRFilter::shiftFilterCoefficients(
     SineWave sine = SineWave(samplingRate);
     // shift to Pi/2 to sample only high and low values, otherwise wave starts
     // from 0
-    auto period = sine.generatePeriod(samplingRate / 2, 1, M_PI / 2);
+    auto period = sine.generatePeriod(samplingRate / 2, 1, numbers::pi / 2);
 
     for (unsigned int i = 0; i < shiftedCoefficients.size(); i++) {
       shiftedCoefficients[i] *= period[i % period.size()];

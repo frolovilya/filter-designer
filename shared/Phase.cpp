@@ -1,29 +1,32 @@
 #include "Phase.hpp"
 #include <cmath>
 #include <vector>
+#include <numbers>
+
+using namespace std;
 
 /**
  * Convert to [-360, 360]
  */
 double normalizeAngle(double angle) {
-  angle = std::fmod(angle + M_PI, M_PI * 2);
+    angle = fmod(angle + numbers::pi, numbers::pi * 2);
   if (angle < 0) {
-    angle += M_PI * 2;
+    angle += numbers::pi * 2;
   }
-  angle = angle - M_PI;
+  angle = angle - numbers::pi;
 
-  return std::fmod(angle, M_PI * 2);
+  return std::fmod(angle, numbers::pi * 2);
 }
 
 /**
  * Diff between two angles in radians
  */
 double angleDiff(double a, double b) {
-  double diff = std::fmod(b - a + M_PI, M_PI * 2);
+  double diff = std::fmod(b - a + numbers::pi, numbers::pi * 2);
   if (diff < 0) {
-    diff += M_PI * 2;
+    diff += numbers::pi * 2;
   }
-  return diff - M_PI;
+  return diff - numbers::pi;
 }
 
 /**

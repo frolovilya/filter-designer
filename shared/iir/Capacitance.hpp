@@ -2,6 +2,7 @@
 #define CAPACITANCE_HPP
 
 #include <cmath>
+#include <numbers>
 
 /**
  * Calculate CR constant to be used for IIR coefficients calculation
@@ -13,7 +14,7 @@ inline double rcConstant(int cutoffFrequency) {
     R = 1 / (2 * pi * frequency * C)
     RC = 1 / (2 * pi * frequency)
   */
-  return 1 / (2 * M_PI * cutoffFrequency);
+    return 1 / (2 * std::numbers::pi * cutoffFrequency);
 }
 
 #endif

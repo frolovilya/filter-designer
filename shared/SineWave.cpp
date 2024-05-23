@@ -2,6 +2,7 @@
 #include "Sampling.hpp"
 #include <cmath>
 #include <stdexcept>
+#include <numbers>
 
 using namespace std;
 
@@ -53,7 +54,7 @@ vector<double> SineWave::generatePeriod(const int frequency,
   const int period = calculatePeriodSamplesCount(frequency);
   vector<double> samples;
   for (int i = 0; i < period; i++) {
-    samples.push_back(sin(2 * M_PI * i / period + phaseShift) * amplitude);
+    samples.push_back(sin(2 * numbers::pi * i / period + phaseShift) * amplitude);
   }
 
   return samples;

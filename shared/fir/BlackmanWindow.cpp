@@ -1,5 +1,6 @@
 #include "BlackmanWindow.hpp"
 #include <cmath>
+#include <numbers>
 
 using namespace std;
 
@@ -19,8 +20,8 @@ vector<double> BlackmanWindow::getCoefficients(const int windowSize) const {
   coefficients.reserve(windowSize);
 
   for (int i = 0; i < windowSize; i++) {
-    coefficients.push_back(0.42 - 0.5 * cos((2 * M_PI * i) / (windowSize - 1)) +
-                           0.08 * cos((4 * M_PI * i) / (windowSize - 1)));
+    coefficients.push_back(0.42 - 0.5 * cos((2 * numbers::pi * i) / (windowSize - 1)) +
+                           0.08 * cos((4 * numbers::pi * i) / (windowSize - 1)));
   }
 
   return coefficients;

@@ -2,6 +2,7 @@
 #include "../shared/FFT.hpp"
 #include <boost/test/unit_test.hpp>
 #include <complex>
+#include <numbers>
 
 using namespace std;
 
@@ -66,10 +67,10 @@ void testSamplingWithPhaseShift(int waveFrequency, int samplingRate,
 BOOST_AUTO_TEST_CASE(phase_shift_sampling_test) {
     // whole period is 2 * Pi
     testSamplingWithPhaseShift(10, 100, 0, 0);
-    testSamplingWithPhaseShift(10, 100, M_PI / 2, 1);
-    testSamplingWithPhaseShift(10, 100, M_PI, 0);
-    testSamplingWithPhaseShift(10, 100, 3 * M_PI / 2, -1);
-    testSamplingWithPhaseShift(10, 100, 2 * M_PI, 0);
+    testSamplingWithPhaseShift(10, 100, numbers::pi / 2, 1);
+    testSamplingWithPhaseShift(10, 100, numbers::pi, 0);
+    testSamplingWithPhaseShift(10, 100, 3 * numbers::pi / 2, -1);
+    testSamplingWithPhaseShift(10, 100, 2 * numbers::pi, 0);
 }
 
 void testPhaseShiftDiff(int waveFrequency, int samplingRate,
@@ -87,12 +88,12 @@ void testPhaseShiftDiff(int waveFrequency, int samplingRate,
 
 BOOST_AUTO_TEST_CASE(phase_shift_diff_test) {
     testPhaseShiftDiff(440, 48000, 0, 0, 0);
-    testPhaseShiftDiff(440, 48000, 0, M_PI, 0);
-    testPhaseShiftDiff(440, 48000, 0, 2 * M_PI, 0);
+    testPhaseShiftDiff(440, 48000, 0, numbers::pi, 0);
+    testPhaseShiftDiff(440, 48000, 0, 2 * numbers::pi, 0);
 
-    testPhaseShiftDiff(440, 48000, 0, M_PI / 2, M_PI / 2);
-    testPhaseShiftDiff(440, 48000, 0, M_PI / 4, M_PI / 4);
-    testPhaseShiftDiff(440, 48000, 0, 2 * M_PI / 3, 2 * M_PI / 3);
+    testPhaseShiftDiff(440, 48000, 0, numbers::pi / 2, numbers::pi / 2);
+    testPhaseShiftDiff(440, 48000, 0, numbers::pi / 4, numbers::pi / 4);
+    testPhaseShiftDiff(440, 48000, 0, 2 * numbers::pi / 3, 2 * numbers::pi / 3);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
