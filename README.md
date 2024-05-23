@@ -2,6 +2,8 @@
 
 FIR and IIR low/high pass digital filter designer tool
 
+![ui](https://github.com/frolovilya/filter-designer/assets/271293/ed5788b1-af8a-4d35-b92b-b69b58b53324)
+
 ## Usage
 
 ### Finite Impulse Response
