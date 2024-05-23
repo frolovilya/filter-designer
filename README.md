@@ -1,8 +1,7 @@
 # Filter Designer
 
 FIR and IIR low/high pass digital filter designer tool
-
-![ui](https://github.com/frolovilya/filter-designer/assets/271293/ed5788b1-af8a-4d35-b92b-b69b58b53324)
+![ui](https://github.com/frolovilya/filter-designer/assets/271293/1d399ffc-a78e-48a5-9b02-a3604fb8d41b)
 
 ## Usage
 
