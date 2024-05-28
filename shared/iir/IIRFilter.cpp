@@ -1,6 +1,6 @@
 #include "IIRFilter.hpp"
 #include "../Sampling.hpp"
-#include "../SineWave.hpp"
+#include "Welle.hpp"
 
 using namespace std;
 
@@ -35,14 +35,14 @@ vector<FilterResponse> IIRFilter::calculateResponse() const {
   const int toFrequency = nyquistFrequency(getSamplingRate());
 
   vector<FilterResponse> response;
-  auto sine = SineWave(getSamplingRate());
+  auto sine = welle::SineWave<double>(getSamplingRate());
+  const double peakToPeakAmplitude = 2;
   for (int frequency = fromFrequency; frequency < toFrequency; frequency++) {
-    auto samples = sine.generatePeriod(frequency, 1);
-    auto filteredSamples = apply(std::move(samples));
+    auto samples = sine.generatePeriod(frequency, peakToPeakAmplitude);
+    auto filteredSamples = apply(samples);
 
-    response.push_back(
-        FilterResponse(toDB(maxAbsValue(filteredSamples)),
-                       SineWave::phaseShift(samples, filteredSamples)));
+    response.push_back(FilterResponse(toDB(maxAbsValue(filteredSamples)),
+                                      phaseShift(samples, filteredSamples)));
   }
 
   return response;
@@ -71,9 +71,9 @@ vector<double> IIRFilter::apply(const vector<double> &samples) const {
   result.push_back(samples[0]);
   for (unsigned int i = 1; i < samples.size(); i++) {
     // Vout = a * Vin[n] - a * Vin[n-1] + a * Vout[n-1]
-    result.push_back(coefficients[0] * samples[i]
-                     + coefficients[1] * samples[i - 1]
-                     + coefficients[2] * result[i - 1]);
+    result.push_back(coefficients[0] * samples[i] +
+                     coefficients[1] * samples[i - 1] +
+                     coefficients[2] * result[i - 1]);
   }
 
   return result;

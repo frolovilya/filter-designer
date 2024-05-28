@@ -9,5 +9,5 @@ add_executable(filter-designer-tests
 
 find_package(Boost 1.85.0 REQUIRED COMPONENTS unit_test_framework)
 target_include_directories(filter-designer-tests PRIVATE ${Boost_INCLUDE_DIRS})
-message("Boost Path: " ${Boost_LIBRARY_DIRS} ", Libraries: " ${Boost_LIBRARIES})
+message("-- Boost Path: " ${Boost_LIBRARY_DIRS} ", Libraries: " ${Boost_LIBRARIES})
 target_link_libraries(filter-designer-tests filter-designer-shared Boost::unit_test_framework)

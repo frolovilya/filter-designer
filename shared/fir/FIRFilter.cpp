@@ -1,7 +1,7 @@
 #include "FIRFilter.hpp"
 #include "../FFT.hpp"
 #include "../Sampling.hpp"
-#include "../SineWave.hpp"
+#include "Welle.hpp"
 #include <cmath>
 #include <numbers>
 
@@ -134,10 +134,9 @@ vector<double> FIRFilter::shiftFilterCoefficients(
   vector<double> shiftedCoefficients(unshiftedCoefficients);
 
   if (passType == FilterPass::highPass) {
-    SineWave sine = SineWave(samplingRate);
-    // shift to Pi/2 to sample only high and low values, otherwise wave starts
-    // from 0
-    auto period = sine.generatePeriod(samplingRate / 2, 1, numbers::pi / 2);
+    auto sine = welle::SineWave<int>(samplingRate);
+    // shift to Pi/2 to sample only high and low sine values
+    auto period = sine.generatePeriod(samplingRate / 2, 2, numbers::pi / 2);
 
     for (unsigned int i = 0; i < shiftedCoefficients.size(); i++) {
       shiftedCoefficients[i] *= period[i % period.size()];

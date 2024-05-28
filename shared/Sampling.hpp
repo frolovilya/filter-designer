@@ -11,4 +11,6 @@ int nyquistFrequency(const int samplingRate);
 
 double toDB(double value);
 
+double phaseShift(std::vector<double> wave1, std::vector<double> wave2);
+
 #endif

@@ -45,10 +45,11 @@ Where `Vin[i]` is a current input sample, `Vout[i]` current output filtered samp
 
 ## Build
 
-The project depends on [Qt](https://doc.qt.io/qt-6/get-and-install-qt.html), [FFTW3](https://www.fftw.org/download.html) and [Boost](https://www.boost.org/) libraries.
+The project depends on [Qt](https://doc.qt.io/qt-6/get-and-install-qt.html), [FFTW3](https://www.fftw.org/download.html), [Welle](https://github.com/frolovilya/Welle) and [Boost](https://www.boost.org/) libraries.
 
 Qt path is passed to the CMake build via `-DQT_PATH` option, since you may wish to install it via Qt Maintenance Tool to any directory.
-FFTW3 and Boost must be available in you _/usr/local/include_ for CMake to resolve the paths.
+
+FFTW3, Welle and Boost must be available in you _/usr/local/include_ for CMake to resolve the paths.
 
 ```
 mkdir build; cd build
