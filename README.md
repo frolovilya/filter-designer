@@ -53,7 +53,7 @@ FFTW3, Welle and Boost must be available in you _/usr/local/include_ for CMake t
 
 ```
 mkdir build; cd build
-cmake ../ -DQT_PATH=~/Dev/tools/QT/6.7.0/macos
+cmake ../ -DQT_PATH=/Users/frolovilya/Dev/tools/QT/6.7.0/macos
 
 make
 ```
