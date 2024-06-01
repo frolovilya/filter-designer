@@ -9,7 +9,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_compile_options(-Wall -Wextra -pedantic -Werror)
 
-project(filter-designer VERSION 0.1 LANGUAGES CXX)
+project(filter-designer VERSION 1.0 LANGUAGES CXX)
+
+message("-- App Version: " ${PROJECT_VERSION})
 
 add_subdirectory(shared)
 add_subdirectory(gui)

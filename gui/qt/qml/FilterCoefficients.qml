@@ -101,7 +101,7 @@ RowLayout {
         Layout.preferredHeight: 100
         Layout.minimumHeight: 100
         Layout.fillHeight: true
-        icon.source: "/icons/qt/clipboard.png"
+        icon.source: "/resources/icons/clipboard.png"
         icon.color: "white"
         palette.button: "dimgray"
         onClicked: {

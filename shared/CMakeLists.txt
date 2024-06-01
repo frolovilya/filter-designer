@@ -1,4 +1,6 @@
-add_library(filter-designer-shared
+set(SHARED_LIB_NAME "FilterDesignerShared")
+
+add_library(${SHARED_LIB_NAME}
   iir/LowPassRCCircuit.cpp iir/LowPassRCCircuit.hpp
   iir/IIRFilter.cpp iir/IIRFilter.hpp
   fir/FIRFilter.cpp fir/FIRFilter.hpp
@@ -23,5 +25,5 @@ message("-- FFTW3 Library: " ${FFTW_LIB_PATH})
 find_path(WELLE_HEADER_PATH Welle.hpp)
 message("-- Welle Header: " ${WELLE_HEADER_PATH})
 
-target_include_directories(filter-designer-shared PUBLIC ${FFTW_HEADER_PATH} ${WELLE_HEADER_PATH})
-target_link_libraries(filter-designer-shared ${FFTW_LIB_PATH})
+target_include_directories(${SHARED_LIB_NAME} PUBLIC ${FFTW_HEADER_PATH} ${WELLE_HEADER_PATH})
+target_link_libraries(${SHARED_LIB_NAME} ${FFTW_LIB_PATH})
