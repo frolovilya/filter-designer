@@ -1,6 +1,16 @@
 # Filter Designer
 
 FIR and IIR low/high pass digital filter designer tool
+
+* Low and high pass filters
+* Finite and infinite impulse responses
+* Various window types
+* Frequency and phase analysis
+* Pass and transition bands indication
+* Free and open-source
+
+<a href="https://apps.apple.com/us/app/digital-filter-designer/id6503596949?mt=12&amp;itsct=apps_box_badge&amp;itscg=30200" style="display: inline-block; overflow: hidden; border-radius: 13px; width: 250px; height: 83px;"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-mac-app-store/black/en-us?size=250x83&amp;releaseDate=1717372800" alt="Download on the Mac App Store" style="border-radius: 13px; width: 250px; height: 83px;"></a>
+
 ![ui](https://github.com/frolovilya/filter-designer/assets/271293/1d399ffc-a78e-48a5-9b02-a3604fb8d41b)
 
 ## Usage
